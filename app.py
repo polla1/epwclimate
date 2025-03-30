@@ -20,7 +20,7 @@ def create_chart(data, colors, title):
         value_name='Temperature'
     )
     
-    chart = alt.Chart(df_melted).mark_line(
+    return alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
@@ -35,7 +35,6 @@ def create_chart(data, colors, title):
         height=400,
         title=title
     )
-    return chart
 
 @st.cache_data
 def load_erbil_data():
@@ -107,28 +106,40 @@ def main():
         key="month_select"
     )
     
-    # Get and prepare monthly data
+    # Process monthly data
     monthly_data = erbil_data[erbil_data.index.month == month]
-    daily_data = monthly_data.resample('D').mean()  # Daily averages
     
-    # Create Altair chart with day numbers only
-    monthly_chart = alt.Chart(daily_data.reset_index()).mark_line().encode(
-        x=alt.X('DateTime:T', title='Day of Month', 
-               axis=alt.Axis(format='%d', labelFlush=True)),
-        y='Temperature:Q',
-        color=alt.Color('variable:N').scale(
-            domain=list(ERBIL_COLORS.keys()),
-            range=list(ERBIL_COLORS.values())
-        ),
-        tooltip=[
-            alt.Tooltip('DateTime:T', title='Date', format='%b %d'),
-            alt.Tooltip('Temperature:Q', format='.1f°C')
-        ]
-    ).properties(
-        title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Daily Temperatures"
-    )
-    
-    st.altair_chart(monthly_chart, use_container_width=True)
+    if not monthly_data.empty:
+        # Resample to daily averages and melt data
+        daily_avg = monthly_data.resample('D').mean()
+        melted_data = daily_avg.reset_index().melt(
+            id_vars=['DateTime'],
+            var_name='Scenario',
+            value_name='Temperature'
+        )
+
+        # Create monthly chart
+        monthly_chart = alt.Chart(melted_data).mark_line().encode(
+            x=alt.X('DateTime:T', title='Day of Month', 
+                   axis=alt.Axis(format='%d')),
+            y=alt.Y('Temperature:Q', title='Temperature (°C)'),
+            color=alt.Color('Scenario:N').scale(
+                domain=list(ERBIL_COLORS.keys()),
+                range=list(ERBIL_COLORS.values())
+            ),
+            tooltip=[
+                alt.Tooltip('DateTime:T', title='Date', format='%b %d'),
+                alt.Tooltip('Temperature:Q', format='.1f°C'),
+                'Scenario'
+            ]
+        ).properties(
+            title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Daily Temperatures",
+            width=800
+        )
+        
+        st.altair_chart(monthly_chart, use_container_width=True)
+    else:
+        st.warning("No data available for selected month")
 
     display_contact()
 
