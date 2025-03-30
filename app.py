@@ -7,21 +7,29 @@ from contact import display_contact
 
 def create_transparent_chart(data):
     """Create a line chart with semi-transparent lines"""
-    chart = alt.Chart(data.reset_index()).transform_fold(
-        list(data.columns),
-        as_=['Scenario', 'Temperature']
-    ).mark_line(
-        opacity=0.6,  # Controls transparency
+    # Melt dataframe for Altair
+    df_melted = data.reset_index().melt(
+        id_vars=['DateTime'],
+        var_name='Scenario',
+        value_name='Temperature'
+    )
+    
+    # Create base chart
+    base = alt.Chart(df_melted).encode(
+        x=alt.X('DateTime:T', title='Date'),
+        y=alt.Y('Temperature:Q', title='Temperature (°C)'),
+        color='Scenario:N'
+    )
+    
+    # Create line chart with transparency
+    chart = base.mark_line(
+        opacity=0.6,
         strokeWidth=2
-    ).encode(
-        x='DateTime:T',
-        y='Temperature:Q',
-        color='Scenario:N',
-        tooltip=['Scenario', 'Temperature']
     ).properties(
         height=400,
         width=800
     )
+    
     return chart
 
 @st.cache_data
