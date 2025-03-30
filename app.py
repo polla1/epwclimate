@@ -13,11 +13,12 @@ ERBIL_COLORS = {
 }
 
 def create_chart(data, colors, title):
-    """Create a line chart with month-only x-axis"""
-    # Convert all dates to 2023 and extract month names
-    df = data.copy()
-    df.index = df.index.map(lambda x: x.replace(year=2023))
-    df['Month'] = df.index.strftime('%B')
+    """Create a line chart with specified colors"""
+    df_melted = data.reset_index().melt(
+        id_vars=['MonthName'],
+        var_name='Scenario',
+        value_name='Temperature'
+    )
     
     # Define month order
     month_order = [
@@ -25,19 +26,11 @@ def create_chart(data, colors, title):
         'July', 'August', 'September', 'October', 'November', 'December'
     ]
     
-    # Create melted dataframe
-    df_melted = df.reset_index().melt(
-        id_vars=['Month'],
-        var_name='Scenario',
-        value_name='Temperature'
-    )
-    
-    # Build chart
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('Month:N', title='Month',
+        x=alt.X('MonthName:N', title='Month',
                sort=month_order,
                axis=alt.Axis(labelAngle=0)),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
@@ -46,7 +39,7 @@ def create_chart(data, colors, title):
             range=list(colors.values())
         ),
         tooltip=[
-            'Month',
+            'MonthName',
             'Scenario',
             alt.Tooltip('Temperature:Q', format='.1f°C')
         ]
