@@ -44,25 +44,24 @@ def display_sidebar():
     """File upload sidebar component"""
     with st.sidebar:
         st.header("Upload Custom Data")
-        uploaded_files = st.file_uploader(
+        return st.file_uploader(
             "Choose EPW files",
             type="epw",
             accept_multiple_files=True
         )
-        return uploaded_files
 
 def main():
     # Page configuration
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     st.title("Erbil Climate Scenarios Visualization")
     
-    # Load core data with error handling
+    # Load core data
     try:
-        erbil_data = pd.concat([
-            load_baseline().rename(columns={'Temperature': '2023 Baseline'}),
-            load_2050().rename(columns={'Temperature': '2050 Projection'}),
-            load_2080().rename(columns={'Temperature': '2080 Projection'})
-        ], axis=1).dropna()
+        baseline = load_baseline().rename(columns={'Temperature': '2023 Baseline'})
+        proj2050 = load_2050().rename(columns={'Temperature': '2050 Projection'})
+        proj2080 = load_2080().rename(columns={'Temperature': '2080 Projection'})
+        
+        erbil_data = pd.concat([baseline, proj2050, proj2080], axis=1).dropna()
         
         if erbil_data.empty:
             st.error("No data loaded - check EPW files")
@@ -124,7 +123,7 @@ def main():
         except Exception as e:
             st.error(f"Couldn't display uploads: {str(e)}")
 
-    # Monthly analysis section
+    # Monthly analysis
     st.header("Monthly Temperature Breakdown")
     month = st.selectbox(
         "Select Month for Detailed View",
@@ -148,6 +147,6 @@ def main():
     except Exception as e:
         st.error(f"Monthly analysis failed: {str(e)}")
 
-# Proper main guard
+# ====== CRITICAL FIX ======
 if __name__ == "__main__":
     main()
