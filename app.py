@@ -115,11 +115,14 @@ def main():
     
     monthly_data = erbil_data[erbil_data.index.month == month]
     
-    # Use Streamlit's native line chart with proper formatting
+    # Create color list based on existing columns
+    color_list = [ERBIL_COLORS[col] for col in monthly_data.columns if col in ERBIL_COLORS]
+    
+    # Create monthly chart with proper formatting
     st.line_chart(
         monthly_data,
         use_container_width=True,
-        color=ERBIL_COLORS  # Use color mapping directly
+        color=color_list  # Pass colors as list
     )
 
     display_contact()
