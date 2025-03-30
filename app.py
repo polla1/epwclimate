@@ -147,6 +147,6 @@ def main():
     except Exception as e:
         st.error(f"Monthly analysis failed: {str(e)}")
 
-# ====== CRITICAL FIX ======
+# ====== PROPER MAIN DECLARATION ======
 if __name__ == "__main__":
     main()
