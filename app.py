@@ -6,7 +6,16 @@ from sidebar import display_sidebar
 from contact import display_contact
 
 def create_transparent_chart(data):
-    """Create a line chart with semi-transparent lines"""
+    """Create a line chart with climate-progression colors"""
+    color_palette = [
+        '#00FF00',  # Green - 2023 Baseline
+        '#0000FF',  # Blue - 2050 Projection
+        '#FF0000',  # Red - 2080 Projection
+        '#FFA500',  # Orange (Upload 1)
+        '#800080',  # Purple (Upload 2)
+        '#00FFFF'   # Cyan (Upload 3)
+    ]
+    
     # Melt dataframe for Altair
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
@@ -14,20 +23,20 @@ def create_transparent_chart(data):
         value_name='Temperature'
     )
     
-    # Create base chart
-    base = alt.Chart(df_melted).encode(
+    # Create chart with explicit color mapping
+    chart = alt.Chart(df_melted).mark_line(
+        opacity=0.7,
+        strokeWidth=2
+    ).encode(
         x=alt.X('DateTime:T', title='Date'),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
-        color='Scenario:N'
-    )
-    
-    # Create line chart with transparency
-    chart = base.mark_line(
-        opacity=0.6,
-        strokeWidth=2
+        color=alt.Color('Scenario:N').scale(
+            domain=['2023 Baseline', '2050 Projection', '2080 Projection'],
+            range=color_palette[:3]
+        ),
+        tooltip=['Scenario', alt.Tooltip('Temperature:Q', format='.1f')]
     ).properties(
-        height=400,
-        width=800
+        height=400
     )
     
     return chart
