@@ -59,7 +59,7 @@ def main():
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Erbil Yearly Comparison
+    # Yearly Comparison Section (WORKS)
     st.header("Erbil Climate Scenarios")
     
     # Scenario selection
@@ -76,14 +76,14 @@ def main():
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"  # Updated title
+                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"
             ),
             use_container_width=True
         )
     else:
         st.warning("Please select at least one Erbil scenario")
 
-    # Custom Uploads Visualization
+    # Custom Uploads Section (WORKS)
     if custom_data:
         st.header("Uploaded Climate Files")
         custom_df = pd.concat(custom_data.values(), axis=1)
@@ -98,7 +98,7 @@ def main():
             use_container_width=True
         )
 
-    # Monthly Analysis (Erbil only)
+    # Monthly Analysis Section (FIXED DATE FORMAT)
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -108,10 +108,19 @@ def main():
     )
     
     monthly_data = erbil_data[erbil_data.index.month == month]
-    st.line_chart(
-        monthly_data,
-        use_container_width=True
+    
+    # Create clean Altair chart with day numbers only
+    melted = monthly_data.reset_index().melt(id_vars=['DateTime'])
+    chart = alt.Chart(melted).mark_line().encode(
+        x=alt.X('DateTime:T', title='Day', axis=alt.Axis(format='%d')),
+        y='Temperature:Q',
+        color='variable:N',
+        tooltip=['DateTime:T', 'Temperature:Q', 'variable:N']
+    ).properties(
+        title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Temperatures"
     )
+    
+    st.altair_chart(chart, use_container_width=True)
 
     display_contact()
 
