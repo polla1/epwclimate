@@ -100,7 +100,7 @@ def main():
             use_container_width=True
         )
 
-    # Monthly Analysis (Erbil only)
+       # Monthly Analysis (Erbil only) - UPDATED SECTION
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -110,10 +110,23 @@ def main():
     )
     
     monthly_data = erbil_data[erbil_data.index.month == month]
-    st.line_chart(
-        monthly_data,
-        use_container_width=True
+    
+    # Create Altair chart with day-only formatting
+    melted = monthly_data.reset_index().melt(id_vars=['DateTime'])
+    chart = alt.Chart(melted).mark_line().encode(
+        x=alt.X('DateTime:T', title='Day of Month', 
+               axis=alt.Axis(format='%d')),  # Show only day numbers
+        y='Temperature:Q',
+        color=alt.Color('variable:N').scale(
+            domain=list(ERBIL_COLORS.keys()),
+            range=list(ERBIL_COLORS.values())
+        ),
+        tooltip=['DateTime:T', 'Temperature:Q', 'variable:N']
+    ).properties(
+        title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Daily Temperatures"
     )
+    
+    st.altair_chart(chart, use_container_width=True)
 
     display_contact()
 
