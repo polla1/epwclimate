@@ -13,32 +13,38 @@ ERBIL_COLORS = {
 }
 
 def create_chart(data, colors, title):
-    """Create a line chart with specified colors"""
+    """Create a line chart with month-only x-axis"""
+    # Prepare data with proper month names
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
         var_name='Scenario',
         value_name='Temperature'
     )
     
-    # Add month name column without year
+    # Add formatted month column
     df_melted['Month'] = df_melted['DateTime'].dt.strftime('%B')
     
+    # Define month order for correct sorting
+    month_order = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+    
+    # Create chart with explicit month ordering
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('Month:N', title='Date', 
-               sort=[
-                   'January', 'February', 'March', 'April', 'May', 'June',
-                   'July', 'August', 'September', 'October', 'November', 'December'
-               ]),
+        x=alt.X('Month:N', title='Month', 
+               sort=month_order,
+               axis=alt.Axis(labelAngle=0)),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
             range=list(colors.values())
         ),
         tooltip=[
-            alt.Tooltip('DateTime:T', title='Date', format='%B %d, %Y'),
+            alt.Tooltip('DateTime:T', title='Date', format='%B %Y'),
             'Scenario',
             alt.Tooltip('Temperature:Q', format='.1f°C')
         ]
@@ -46,8 +52,9 @@ def create_chart(data, colors, title):
         height=400,
         title=title
     )
-    return chart
     
+    return chart
+
 @st.cache_data
 def load_erbil_data():
     """Load and cache Erbil climate data"""
@@ -70,10 +77,8 @@ def main():
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Erbil Yearly Comparison
-    st.header("Weather file (.EPW) Scenarios of Erbil")
-    
     # Scenario selection
+    st.header("Weather file (.EPW) Scenarios of Erbil")
     selected_erbil = []
     cols = st.columns(3)
     scenarios = list(ERBIL_COLORS.keys())
@@ -87,14 +92,14 @@ def main():
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"
+                "Temperature Projections Comparison"
             ),
             use_container_width=True
         )
     else:
         st.warning("Please select at least one Erbil scenario")
 
-    # Custom Uploads Visualization
+    # Custom uploads
     if custom_data:
         st.header("Uploaded Climate Files")
         custom_df = pd.concat(custom_data.values(), axis=1)
@@ -109,7 +114,7 @@ def main():
             use_container_width=True
         )
 
-    # Monthly Analysis (Erbil only)
+    # Monthly analysis
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
