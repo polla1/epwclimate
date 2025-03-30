@@ -13,8 +13,13 @@ ERBIL_COLORS = {
 
 def create_chart(data, colors, title):
     """Create a line chart with month-only x-axis"""
-    df_melted = data.reset_index().melt(
-        id_vars=['MonthName'],  # Use MonthName instead of DateTime
+    # Add MonthName column from index
+    df = data.copy()
+    df['Month'] = df.index.strftime('%B')
+    
+    # Melt data for Altair
+    df_melted = df.melt(
+        id_vars=['Month'],
         var_name='Scenario',
         value_name='Temperature'
     )
@@ -25,11 +30,12 @@ def create_chart(data, colors, title):
         'July', 'August', 'September', 'October', 'November', 'December'
     ]
     
+    # Build chart
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('MonthName:N', title='Month',
+        x=alt.X('Month:N', title='Month',
                sort=month_order,
                axis=alt.Axis(labelAngle=0)),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
@@ -38,7 +44,7 @@ def create_chart(data, colors, title):
             range=list(colors.values())
         ),
         tooltip=[
-            'MonthName',
+            'Month',
             'Scenario',
             alt.Tooltip('Temperature:Q', format='.1f°C')
         ]
@@ -54,12 +60,7 @@ def load_erbil_data():
     baseline = load_baseline().rename(columns={'Temperature': '2023 Baseline'})
     proj2050 = load_2050().rename(columns={'Temperature': '2050 Projection'})
     proj2080 = load_2080().rename(columns={'Temperature': '2080 Projection'})
-    
-    # Keep only one MonthName column
-    proj2050 = proj2050.drop(columns=['MonthName'])
-    proj2080 = proj2080.drop(columns=['MonthName'])
-    
-    return pd.concat([baseline, proj2050, proj2080], axis=1).dropna()
+    return pd.concat([baseline, proj2050, proj2080], axis=1)
 
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
@@ -86,7 +87,7 @@ def main():
 
     if selected:
         st.altair_chart(
-            create_chart(erbil_data[selected + ['MonthName']],  # Include MonthName
+            create_chart(erbil_data[selected],
                         {k: ERBIL_COLORS[k] for k in selected},
                         "Monthly Temperature Comparison"),
             use_container_width=True
@@ -97,23 +98,11 @@ def main():
     # Custom uploads
     if custom_data:
         st.header("Uploaded Climate Files")
-        custom_df = pd.concat(
-            [df['Temperature'] for df in custom_data.values()], 
-            axis=1
-        )
+        custom_df = pd.concat(custom_data.values(), axis=1)
         custom_df.columns = custom_data.keys()
-        
-        # Add MonthName to custom data
-        custom_df['MonthName'] = erbil_data['MonthName']
         
         st.altair_chart(
             create_chart(custom_df,
                         {name: '#FFA500' for name in custom_data.keys()},
                         "Uploaded Temperature Data"),
-            use_container_width=True
-        )
-
-    display_contact()
-
-if __name__ == "__main__":
-    main()
+            use_container
