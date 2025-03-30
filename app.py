@@ -1,8 +1,3 @@
-this also did not work. 
-
-OK, I converted to older code. it looks like this as this screenshoot:
-
-and the code in app.py
 import streamlit as st
 import pandas as pd
 import altair as alt
