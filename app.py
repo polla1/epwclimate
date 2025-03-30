@@ -31,6 +31,17 @@ def create_chart(data, colors, title):
         st.error(f"Chart error: {str(e)}")
         return None
 
+def sidebar():
+    """File upload sidebar"""
+    with st.sidebar:
+        st.header("Upload Custom EPW Files")
+        uploaded_files = st.file_uploader(
+            "Choose EPW files",
+            type="epw",
+            accept_multiple_files=True
+        )
+        return uploaded_files
+
 def main():
     # Page setup
     st.set_page_config(page_title="Erbil Climate", layout="wide")
@@ -43,11 +54,24 @@ def main():
         proj2080 = load_2080().rename(columns={'Temperature': '2080 Projection'})
         
         # Combine data ensuring same index
-        erbil_data = pd.concat([baseline, proj2050, proj2080], axis=1)
+        erbil_data = pd.concat([baseline, proj2050, proj2080], axis=1).dropna()
         
     except Exception as e:
         st.error(f"Data loading failed: {str(e)}")
         st.stop()
+
+    # Show sidebar
+    uploaded_files = sidebar()
+
+    # Process uploaded files
+    custom_data = {}
+    if uploaded_files:
+        for file in uploaded_files:
+            try:
+                df = read_epw(file)
+                custom_data[file.name] = df['Temperature']
+            except Exception as e:
+                st.error(f"Error processing {file.name}: {str(e)}")
 
     # Scenario selection
     st.header("Select Scenarios")
@@ -69,6 +93,17 @@ def main():
     else:
         st.warning("Please select at least one scenario")
 
+    # Show uploaded files
+    if custom_data:
+        st.header("Uploaded Data")
+        custom_df = pd.concat(custom_data.values(), axis=1)
+        st.altair_chart(
+            create_chart(custom_df, 
+                        {name: '#FFA500' for name in custom_data.keys()},
+                        "Custom Uploaded Data"),
+            use_container_width=True
+        )
+
     # Monthly analysis
     st.header("Monthly Analysis")
     month = st.selectbox("Select Month", range(1,13), 
@@ -82,5 +117,4 @@ def main():
             use_container_width=True
         )
 
-if __name__ == "__main__":
-    main()
+if __name__ ==
