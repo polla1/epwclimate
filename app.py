@@ -14,14 +14,13 @@ ERBIL_COLORS = {
 
 def create_chart(data, colors, title):
     """Create a line chart with month-only x-axis"""
-    # Prepare data with proper month names
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
         var_name='Scenario',
         value_name='Temperature'
     )
     
-    # Add formatted month column
+    # Create formatted month labels without year
     df_melted['Month'] = df_melted['DateTime'].dt.strftime('%B')
     
     # Define month order for correct sorting
@@ -30,12 +29,12 @@ def create_chart(data, colors, title):
         'July', 'August', 'September', 'October', 'November', 'December'
     ]
     
-    # Create chart with explicit month ordering
+    # Create chart with explicit month formatting
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('Month:N', title='Month', 
+        x=alt.X('Month:N', title='Month',
                sort=month_order,
                axis=alt.Axis(labelAngle=0)),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
