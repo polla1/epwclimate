@@ -25,7 +25,7 @@ def create_chart(data, colors, title):
         strokeWidth=2
     ).encode(
         x=alt.X('DateTime:T', title='Date', 
-               axis=alt.Axis(format='%B')),  # This line changed
+               axis=alt.Axis(format='%B')),  # This line shows only month names
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
@@ -47,7 +47,6 @@ def load_erbil_data():
         load_2080().rename(columns={'Temperature': '2080 Projection'})
     ], axis=1)
 
-
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     st.title("Climate Data Visualization")
@@ -61,8 +60,8 @@ def main():
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Erbil Yearly Comparison - CHANGED HEADER HERE
-    st.header("Weather file (.EPW) Scenarios of Erbil")  # Updated header
+    # Erbil Yearly Comparison
+    st.header("Weather file (.EPW) Scenarios of Erbil")
     
     # Scenario selection
     selected_erbil = []
@@ -73,13 +72,12 @@ def main():
             if st.checkbox(scenarios[i], value=True, key=f"erbil_{i}"):
                 selected_erbil.append(scenarios[i])
 
-    
     if selected_erbil:
         st.altair_chart(
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"  # Updated title
+                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"
             ),
             use_container_width=True
         )
