@@ -20,7 +20,6 @@ def create_chart(data, colors, title):
         value_name='Temperature'
     )
     
-    # Custom axis formatting based on chart type
     if "Yearly" in title:
         x_axis = alt.X('DateTime:T', title='Month', 
                       axis=alt.Axis(format='%b', labelAngle=0))
@@ -105,7 +104,7 @@ def main():
             use_container_width=True
         )
 
-    # Monthly Analysis (Erbil only)
+    # Monthly Analysis (Erbil only) - FIXED SECTION
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -116,25 +115,12 @@ def main():
     
     monthly_data = erbil_data[erbil_data.index.month == month]
     
-    # Create daily chart with proper day formatting
-    monthly_chart = alt.Chart(monthly_data.reset_index()).mark_line().encode(
-        x=alt.X('DateTime:T', title='Day of Month', 
-               axis=alt.Axis(format='%d', labelFlush=True)),
-        y=alt.Y('Temperature:Q', title='Temperature (°C)'),
-        color=alt.Color('variable:N').scale(
-            domain=list(ERBIL_COLORS.keys()),
-            range=list(ERBIL_COLORS.values())
-        ),
-        tooltip=[
-            alt.Tooltip('DateTime:T', title='Date', format='%b %d'),
-            alt.Tooltip('Temperature:Q', format='.1f°C')
-        ]
-    ).properties(
-        width=800,
-        title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Daily Temperatures"
+    # Use Streamlit's native line chart with proper formatting
+    st.line_chart(
+        monthly_data,
+        use_container_width=True,
+        color=ERBIL_COLORS  # Use color mapping directly
     )
-    
-    st.altair_chart(monthly_chart, use_container_width=True)
 
     display_contact()
 
