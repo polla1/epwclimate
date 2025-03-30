@@ -109,7 +109,7 @@ def main():
         )
 
     # =====================
-    # Monthly Analysis
+    # Monthly Analysis (Fixed)
     # =====================
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
@@ -119,14 +119,22 @@ def main():
         key="month_select"
     )
     
+    # Filter and prepare monthly data
     monthly_data = erbil_data[erbil_data.index.month == month]
     
+    # Melt data for Altair
+    melted_monthly = monthly_data.reset_index().melt(
+        id_vars=['DateTime'],
+        var_name='Scenario',
+        value_name='Temperature'
+    )
+    
     # Create monthly chart
-    monthly_chart = alt.Chart(monthly_data.reset_index()).mark_line().encode(
+    monthly_chart = alt.Chart(melted_monthly).mark_line().encode(
         x=alt.X('DateTime:T', title='Day of Month', 
                axis=alt.Axis(format='%d', labelFlush=True)),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
-        color=alt.Color('variable:N').scale(
+        color=alt.Color('Scenario:N').scale(
             domain=list(ERBIL_COLORS.keys()),
             range=list(ERBIL_COLORS.values())
         ),
