@@ -59,8 +59,8 @@ def main():
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Erbil Yearly Comparison
-    st.header("Erbil Climate Scenarios")
+    # Erbil Yearly Comparison - CHANGED HEADER HERE
+    st.header("Weather file (.EPW) Scenarios of Erbil")  # Updated header
     
     # Scenario selection
     selected_erbil = []
