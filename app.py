@@ -53,7 +53,7 @@ def main():
         proj2050 = load_2050().rename(columns={'Temperature': '2050 Projection'})
         proj2080 = load_2080().rename(columns={'Temperature': '2080 Projection'})
         
-        # Combine data ensuring same index
+        # Combine data
         erbil_data = pd.concat([baseline, proj2050, proj2080], axis=1).dropna()
         
     except Exception as e:
@@ -63,7 +63,7 @@ def main():
     # Show sidebar
     uploaded_files = sidebar()
 
-    # Process uploaded files
+    # Process uploads
     custom_data = {}
     if uploaded_files:
         for file in uploaded_files:
@@ -117,4 +117,6 @@ def main():
             use_container_width=True
         )
 
-if __name__ ==
+# Corrected main declaration
+if __name__ == "__main__":
+    main()
