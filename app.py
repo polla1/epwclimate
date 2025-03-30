@@ -13,7 +13,7 @@ ERBIL_COLORS = {
 }
 
 def create_chart(data, colors, title):
-    """Create a line chart with proper date formatting"""
+    """Create a line chart with specified colors"""
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
         var_name='Scenario',
@@ -116,10 +116,10 @@ def main():
     
     monthly_data = erbil_data[erbil_data.index.month == month]
     
-    # Create monthly chart with day numbers only
+    # Create daily chart with proper day formatting
     monthly_chart = alt.Chart(monthly_data.reset_index()).mark_line().encode(
         x=alt.X('DateTime:T', title='Day of Month', 
-               axis=alt.Axis(format='%-d', labelFlush=False)),
+               axis=alt.Axis(format='%d', labelFlush=True)),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('variable:N').scale(
             domain=list(ERBIL_COLORS.keys()),
