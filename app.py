@@ -46,6 +46,7 @@ def load_erbil_data():
         load_2080().rename(columns={'Temperature': '2080 Projection'})
     ], axis=1)
 
+
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     st.title("Climate Data Visualization")
@@ -59,8 +60,8 @@ def main():
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Yearly Comparison Section (WORKS)
-    st.header("Erbil Climate Scenarios")
+    # Erbil Yearly Comparison - CHANGED HEADER HERE
+    st.header("Weather file (.EPW) Scenarios of Erbil")  # Updated header
     
     # Scenario selection
     selected_erbil = []
@@ -70,20 +71,21 @@ def main():
         with col:
             if st.checkbox(scenarios[i], value=True, key=f"erbil_{i}"):
                 selected_erbil.append(scenarios[i])
+
     
     if selected_erbil:
         st.altair_chart(
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"
+                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"  # Updated title
             ),
             use_container_width=True
         )
     else:
         st.warning("Please select at least one Erbil scenario")
 
-    # Custom Uploads Section (WORKS)
+    # Custom Uploads Visualization
     if custom_data:
         st.header("Uploaded Climate Files")
         custom_df = pd.concat(custom_data.values(), axis=1)
@@ -98,7 +100,7 @@ def main():
             use_container_width=True
         )
 
-    # Monthly Analysis Section (FIXED DATE FORMAT)
+    # Monthly Analysis (Erbil only)
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -108,19 +110,10 @@ def main():
     )
     
     monthly_data = erbil_data[erbil_data.index.month == month]
-    
-    # Create clean Altair chart with day numbers only
-    melted = monthly_data.reset_index().melt(id_vars=['DateTime'])
-    chart = alt.Chart(melted).mark_line().encode(
-        x=alt.X('DateTime:T', title='Day', axis=alt.Axis(format='%d')),
-        y='Temperature:Q',
-        color='variable:N',
-        tooltip=['DateTime:T', 'Temperature:Q', 'variable:N']
-    ).properties(
-        title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Temperatures"
+    st.line_chart(
+        monthly_data,
+        use_container_width=True
     )
-    
-    st.altair_chart(chart, use_container_width=True)
 
     display_contact()
 
