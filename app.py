@@ -59,7 +59,7 @@ def main():
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Erbil Yearly Comparison
+    # Yearly Comparison Section
     st.header("Erbil Climate Scenarios")
     
     # Scenario selection
@@ -76,14 +76,14 @@ def main():
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"  # Updated title
+                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"
             ),
             use_container_width=True
         )
     else:
         st.warning("Please select at least one Erbil scenario")
 
-    # Custom Uploads Visualization
+    # Custom Uploads Section
     if custom_data:
         st.header("Uploaded Climate Files")
         custom_df = pd.concat(custom_data.values(), axis=1)
@@ -98,7 +98,7 @@ def main():
             use_container_width=True
         )
 
-    # Monthly Analysis (Erbil only)
+    # Fixed Monthly Analysis Section
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -107,11 +107,28 @@ def main():
         key="month_select"
     )
     
+    # Get and prepare monthly data
     monthly_data = erbil_data[erbil_data.index.month == month]
-    st.line_chart(
-        monthly_data,
-        use_container_width=True
+    daily_data = monthly_data.resample('D').mean()  # Daily averages
+    
+    # Create Altair chart with day numbers only
+    monthly_chart = alt.Chart(daily_data.reset_index()).mark_line().encode(
+        x=alt.X('DateTime:T', title='Day of Month', 
+               axis=alt.Axis(format='%d', labelFlush=True)),
+        y='Temperature:Q',
+        color=alt.Color('variable:N').scale(
+            domain=list(ERBIL_COLORS.keys()),
+            range=list(ERBIL_COLORS.values())
+        ),
+        tooltip=[
+            alt.Tooltip('DateTime:T', title='Date', format='%b %d'),
+            alt.Tooltip('Temperature:Q', format='.1f°C')
+        ]
+    ).properties(
+        title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Daily Temperatures"
     )
+    
+    st.altair_chart(monthly_chart, use_container_width=True)
 
     display_contact()
 
