@@ -24,7 +24,8 @@ def create_chart(data, colors, title):
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('DateTime:T', title='Date'),
+        x=alt.X('DateTime:T', title='Date', 
+               axis=alt.Axis(format='%B')),  # This line changed
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
