@@ -20,28 +20,34 @@ def create_chart(data, colors, title):
         value_name='Temperature'
     )
     
+    # Add month name column without year
+    df_melted['Month'] = df_melted['DateTime'].dt.strftime('%B')
+    
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('DateTime:T', title='Date',
-               axis=alt.Axis(
-                   format='%B',  # Full month names
-                   labelExpr="split(datum.value, ' ')[1]",  # Remove year
-                   labelAlign='center'
-               )),
+        x=alt.X('Month:N', title='Date', 
+               sort=[
+                   'January', 'February', 'March', 'April', 'May', 'June',
+                   'July', 'August', 'September', 'October', 'November', 'December'
+               ]),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
             range=list(colors.values())
         ),
-        tooltip=['Scenario', alt.Tooltip('Temperature:Q', format='.1f')]
+        tooltip=[
+            alt.Tooltip('DateTime:T', title='Date', format='%B %d, %Y'),
+            'Scenario',
+            alt.Tooltip('Temperature:Q', format='.1f°C')
+        ]
     ).properties(
         height=400,
         title=title
     )
     return chart
-
+    
 @st.cache_data
 def load_erbil_data():
     """Load and cache Erbil climate data"""
