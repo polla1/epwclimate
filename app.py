@@ -76,7 +76,7 @@ def main():
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Erbil Temperature Projections"
+                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"  # Updated title
             ),
             use_container_width=True
         )
@@ -92,7 +92,7 @@ def main():
         st.altair_chart(
             create_chart(
                 custom_df,
-                {name: '#FFA500' for name in custom_data.keys()},  # Orange for all uploads
+                {name: '#FFA500' for name in custom_data.keys()},
                 "Uploaded Temperature Data"
             ),
             use_container_width=True
