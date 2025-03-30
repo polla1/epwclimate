@@ -1,22 +1,13 @@
-import streamlit as st
-import pandas as pd
-from database import load_baseline, load_2050, load_2080, read_epw
-from sidebar import display_sidebar
-from contact import display_contact
-
+# app.py (modified section)
 def main():
     st.title("Erbil City Temperature Analysis")
     
-    # Load baseline data
-    baseline = load_baseline()
-    future_2050 = load_2050()
-    future_2080 = load_2080()
-    
-    # Combine data
+    # Load data with caching
+    data = load_all_data()
     combined = pd.concat([
-        baseline.rename(columns={'Temperature': 'Baseline 2023'}),
-        future_2050.rename(columns={'Temperature': 'Future 2050'}),
-        future_2080.rename(columns={'Temperature': 'Future 2080'})
+        data['baseline'].rename(columns={'Temperature': 'Baseline 2023'}),
+        data['2050'].rename(columns={'Temperature': 'Future 2050'}),
+        data['2080'].rename(columns={'Temperature': 'Future 2080'})
     ], axis=1)
 
     # Process uploaded files
@@ -25,19 +16,41 @@ def main():
         temp_df = read_epw(file)
         combined[file.name] = temp_df['Temperature']
 
-    # Yearly visualization
+    # Yearly visualization with toggle controls
     st.header("Yearly Temperature Comparison")
-    st.line_chart(combined)
-
-    # Monthly analysis
-    st.header("Monthly Analysis")
-    month = st.selectbox("Select Month", range(1,13), 
-                        format_func=lambda x: pd.Timestamp(2023, x, 1).strftime('%B'))
     
-    monthly_data = combined[combined.index.month == month]
-    st.line_chart(monthly_data)
+    # Create toggle buttons in columns
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        show_baseline = st.checkbox("Baseline 2023", value=True)
+    with col2:
+        show_2050 = st.checkbox("Future 2050", value=True)
+    with col3:
+        show_2080 = st.checkbox("Future 2080", value=True)
 
-    display_contact()
+    # Filter data based on selections
+    selected_columns = []
+    if show_baseline:
+        selected_columns.append('Baseline 2023')
+    if show_2050:
+        selected_columns.append('Future 2050')
+    if show_2080:
+        selected_columns.append('Future 2080')
+    
+    # Add uploaded files toggles
+    if uploaded_files:
+        st.write("Uploaded Files:")
+        file_toggles = {}
+        for file in uploaded_files:
+            file_toggles[file.name] = st.checkbox(file.name, value=True)
+        
+        selected_columns += [name for name, show in file_toggles.items() if show]
 
-if __name__ == "__main__":
-    main()
+    # Plot filtered data
+    if selected_columns:
+        st.line_chart(combined[selected_columns])
+    else:
+        st.warning("Please select at least one scenario to display")
+
+    # Keep existing monthly analysis section unchanged
+    # ...
