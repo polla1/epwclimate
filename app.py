@@ -13,18 +13,25 @@ ERBIL_COLORS = {
 }
 
 def create_chart(data, colors, title):
-    """Create a line chart with specified colors"""
+    """Create a line chart with proper date formatting"""
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
         var_name='Scenario',
         value_name='Temperature'
     )
     
+    # Custom axis formatting based on chart type
+    if "Yearly" in title:
+        x_axis = alt.X('DateTime:T', title='Month', 
+                      axis=alt.Axis(format='%b', labelAngle=0))
+    else:
+        x_axis = alt.X('DateTime:T', title='Date')
+    
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('DateTime:T', title='Date'),
+        x=x_axis,
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
@@ -59,8 +66,8 @@ def main():
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Erbil Yearly Comparison - CHANGED HEADER HERE
-    st.header("Weather file (.EPW) Scenarios of Erbil")  # Updated header
+    # Erbil Yearly Comparison
+    st.header("Weather file (.EPW) Scenarios of Erbil")
     
     # Scenario selection
     selected_erbil = []
@@ -76,7 +83,7 @@ def main():
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"  # Updated title
+                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"
             ),
             use_container_width=True
         )
@@ -108,10 +115,26 @@ def main():
     )
     
     monthly_data = erbil_data[erbil_data.index.month == month]
-    st.line_chart(
-        monthly_data,
-        use_container_width=True
+    
+    # Create monthly chart with day numbers only
+    monthly_chart = alt.Chart(monthly_data.reset_index()).mark_line().encode(
+        x=alt.X('DateTime:T', title='Day of Month', 
+               axis=alt.Axis(format='%-d', labelFlush=False)),
+        y=alt.Y('Temperature:Q', title='Temperature (°C)'),
+        color=alt.Color('variable:N').scale(
+            domain=list(ERBIL_COLORS.keys()),
+            range=list(ERBIL_COLORS.values())
+        ),
+        tooltip=[
+            alt.Tooltip('DateTime:T', title='Date', format='%b %d'),
+            alt.Tooltip('Temperature:Q', format='.1f°C')
+        ]
+    ).properties(
+        width=800,
+        title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Daily Temperatures"
     )
+    
+    st.altair_chart(monthly_chart, use_container_width=True)
 
     display_contact()
 
