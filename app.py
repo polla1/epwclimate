@@ -20,7 +20,7 @@ def create_chart(data, colors, title):
         value_name='Temperature'
     )
     
-    return alt.Chart(df_melted).mark_line(
+    chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
@@ -35,6 +35,7 @@ def create_chart(data, colors, title):
         height=400,
         title=title
     )
+    return chart
 
 @st.cache_data
 def load_erbil_data():
@@ -58,7 +59,7 @@ def main():
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Yearly Comparison Section
+    # Erbil Yearly Comparison
     st.header("Erbil Climate Scenarios")
     
     # Scenario selection
@@ -75,14 +76,14 @@ def main():
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"
+                "Interactive Yearly Temperature of 2023, 2050, and 2080 - Erbil, Iraq"  # Updated title
             ),
             use_container_width=True
         )
     else:
         st.warning("Please select at least one Erbil scenario")
 
-    # Custom Uploads Section
+    # Custom Uploads Visualization
     if custom_data:
         st.header("Uploaded Climate Files")
         custom_df = pd.concat(custom_data.values(), axis=1)
@@ -97,7 +98,7 @@ def main():
             use_container_width=True
         )
 
-    # Fixed Monthly Analysis Section
+    # Monthly Analysis (Erbil only)
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -106,40 +107,11 @@ def main():
         key="month_select"
     )
     
-    # Process monthly data
     monthly_data = erbil_data[erbil_data.index.month == month]
-    
-    if not monthly_data.empty:
-        # Resample to daily averages and melt data
-        daily_avg = monthly_data.resample('D').mean()
-        melted_data = daily_avg.reset_index().melt(
-            id_vars=['DateTime'],
-            var_name='Scenario',
-            value_name='Temperature'
-        )
-
-        # Create monthly chart
-        monthly_chart = alt.Chart(melted_data).mark_line().encode(
-            x=alt.X('DateTime:T', title='Day of Month', 
-                   axis=alt.Axis(format='%d')),
-            y=alt.Y('Temperature:Q', title='Temperature (°C)'),
-            color=alt.Color('Scenario:N').scale(
-                domain=list(ERBIL_COLORS.keys()),
-                range=list(ERBIL_COLORS.values())
-            ),
-            tooltip=[
-                alt.Tooltip('DateTime:T', title='Date', format='%b %d'),
-                alt.Tooltip('Temperature:Q', format='.1f°C'),
-                'Scenario'
-            ]
-        ).properties(
-            title=f"{pd.Timestamp(2023, month, 1).strftime('%B')} Daily Temperatures",
-            width=800
-        )
-        
-        st.altair_chart(monthly_chart, use_container_width=True)
-    else:
-        st.warning("No data available for selected month")
+    st.line_chart(
+        monthly_data,
+        use_container_width=True
+    )
 
     display_contact()
 
