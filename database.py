@@ -1,32 +1,37 @@
 import pandas as pd
 from datetime import datetime
-import pandas as pd
 
 def read_epw(file_path, base_year=2023):
+    """Read EPW file and extract temperature data with proper datetime index"""
     try:
-        df = pd.read_csv(file_path, skiprows=8, header=None)
-    except UnicodeDecodeError:
+        # Read EPW file (skip 8 header rows)
         df = pd.read_csv(file_path, skiprows=8, header=None, encoding='latin-1')
-    
-    # Convert to proper data types
-    df = df.iloc[:, [0, 1, 2, 3, 6]]
-    df.columns = ['Year', 'Month', 'Day', 'Hour', 'Temperature']
-    df = df.apply(pd.to_numeric, errors='coerce').dropna()
-    
-    df['DateTime'] = df.apply(lambda row: datetime(
-        base_year,
-        int(row['Month']),
-        int(row['Day']),
-        int(row['Hour'])-1 if int(row['Hour']) != 24 else 0
-    ), axis=1)
-    
-    return df.set_index('DateTime')[['Temperature']]
+        
+        # Create proper datetime index
+        df['DateTime'] = pd.to_datetime(
+            df.apply(lambda row: f"{base_year}-{int(row[1]):02d}-{int(row[2]):02d} {int(row[3])-1:02d}:00:00",
+                     axis=1)
+        )
+        
+        # Select temperature column (column index 6)
+        df = df.set_index('DateTime')[[6]].rename(columns={6: 'Temperature'})
+        return df
+        
+    except Exception as e:
+        raise ValueError(f"Error reading {file_path}: {str(e)}")
+
+def load_scenario(file_name):
+    """Load a climate scenario file with error handling"""
+    try:
+        return read_epw(file_name)
+    except Exception as e:
+        raise ValueError(f"Failed to load {file_name}: {str(e)}")
 
 def load_baseline():
-    return read_epw('2023_scenario_Erbil-Baseline.epw')
+    return load_scenario('2023_scenario_Erbil-Baseline.epw')
 
 def load_2050():
-    return read_epw('2050_scenario_Erbil.epw')
+    return load_scenario('2050_scenario_Erbil.epw')
 
 def load_2080():
-    return read_epw('2080_scenario_Erbil.epw')
+    return load_scenario('2080_scenario_Erbil.epw')
