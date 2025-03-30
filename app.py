@@ -14,36 +14,29 @@ ERBIL_COLORS = {
 
 def create_chart(data, colors, title):
     """Create a line chart with month-only x-axis"""
-    df_melted = data.reset_index().melt(
+    # Convert all dates to a common year (2023) for visualization
+    df = data.copy()
+    df.index = df.index.map(lambda x: x.replace(year=2023))
+    
+    df_melted = df.reset_index().melt(
         id_vars=['DateTime'],
         var_name='Scenario',
         value_name='Temperature'
     )
     
-    # Create formatted month labels without year
-    df_melted['Month'] = df_melted['DateTime'].dt.strftime('%B')
-    
-    # Define month order for correct sorting
-    month_order = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ]
-    
-    # Create chart with explicit month formatting
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('Month:N', title='Month',
-               sort=month_order,
-               axis=alt.Axis(labelAngle=0)),
+        x=alt.X('DateTime:T', title='Month',
+               axis=alt.Axis(format='%B', labelAngle=0)),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
             range=list(colors.values())
         ),
         tooltip=[
-            alt.Tooltip('DateTime:T', title='Date', format='%B %Y'),
+            alt.Tooltip('DateTime:T', title='Date', format='%B'),
             'Scenario',
             alt.Tooltip('Temperature:Q', format='.1f°C')
         ]
@@ -51,7 +44,6 @@ def create_chart(data, colors, title):
         height=400,
         title=title
     )
-    
     return chart
 
 @st.cache_data
@@ -91,7 +83,7 @@ def main():
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Temperature Projections Comparison"
+                "Monthly Temperature Comparison"
             ),
             use_container_width=True
         )
@@ -114,7 +106,7 @@ def main():
         )
 
     # Monthly analysis
-    st.header("Monthly Temperature Analysis (Erbil)")
+    st.header("Detailed Monthly Analysis")
     month = st.selectbox(
         "Select Month", 
         range(1, 13), 
