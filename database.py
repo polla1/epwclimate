@@ -1,6 +1,5 @@
 import pandas as pd
 from datetime import datetime
-import pandas as pd
 
 def read_epw(file_path, base_year=2023):
     try:
@@ -8,19 +7,25 @@ def read_epw(file_path, base_year=2023):
     except UnicodeDecodeError:
         df = pd.read_csv(file_path, skiprows=8, header=None, encoding='latin-1')
     
-    # Convert to proper data types
-    df = df.iloc[:, [0, 1, 2, 3, 6]]
-    df.columns = ['Year', 'Month', 'Day', 'Hour', 'Temperature']
+    # Select relevant columns
+    df = df.iloc[:, [1, 2, 3, 6]]  # Month, Day, Hour, Temperature
+    df.columns = ['Month', 'Day', 'Hour', 'Temperature']
+    
+    # Convert to numeric types
     df = df.apply(pd.to_numeric, errors='coerce').dropna()
     
+    # Create datetime without year
     df['DateTime'] = df.apply(lambda row: datetime(
-        base_year,
+        2000,  # Dummy year
         int(row['Month']),
         int(row['Day']),
-        int(row['Hour'])-1 if int(row['Hour']) != 24 else 0
+        int(row['Hour']) - 1 if int(row['Hour']) != 24 else 0
     ), axis=1)
     
-    return df.set_index('DateTime')[['Temperature']]
+    # Add month names for plotting
+    df['MonthName'] = df['DateTime'].dt.strftime('%B')
+    
+    return df.set_index('DateTime')[['Temperature', 'MonthName']]
 
 def load_baseline():
     return read_epw('2023_scenario_Erbil-Baseline.epw')
