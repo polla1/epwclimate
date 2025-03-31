@@ -23,10 +23,10 @@ def read_epw(file_path, base_year=2023):
     return df.set_index('DateTime')[['Temperature']]
 
 def load_baseline():
-    return read_epw('2023_scenario_Erbil-Baseline.epw')
+    return read_epw('2023_scenario_Erbil-Baseline.epw', base_year=2023)
 
 def load_2050():
-    return read_epw('2050_scenario_Erbil.epw')
+    return read_epw('2050_scenario_Erbil.epw', base_year=2050)  # Set to 2050
 
 def load_2080():
-    return read_epw('2080_scenario_Erbil.epw')
+    return read_epw('2080_scenario_Erbil.epw', base_year=2080)  # Set to 2080
