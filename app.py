@@ -106,8 +106,9 @@ def main():
         key="month_select"
     )
     
-    monthly_data = erbil_data[erbil_data.index.month == month]
-    monthly_data.index = monthly_data.index.day  # Show only day numbers
+    monthly_data = erbil_data[erbil_data.index.month == month].copy()
+    monthly_data['Day'] = monthly_data.index.day  # Extract only the day number
+    monthly_data = monthly_data.set_index('Day')  # Set it as the new index
     
     st.line_chart(
         monthly_data,
