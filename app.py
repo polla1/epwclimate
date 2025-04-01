@@ -20,17 +20,19 @@ def create_chart(data, colors, title):
         value_name='Temperature'
     )
     
+    df_melted['Day'] = df_melted['DateTime'].dt.day
+    
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('DateTime:T', title='Date and Time', axis=alt.Axis(format='%d-%Hh')),
+        x=alt.X('Day:O', title='Day of Month'),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
             range=list(colors.values())
         ),
-        tooltip=['Scenario', 'DateTime', alt.Tooltip('Temperature:Q', format='.1f')]
+        tooltip=['Scenario', alt.Tooltip('Temperature:Q', format='.1f')]
     ).properties(
         height=400,
         title=title
@@ -98,7 +100,7 @@ def main():
             use_container_width=True
         )
 
-    # Monthly Analysis (Hourly Data)
+    # Monthly Analysis (Erbil only)
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -108,18 +110,16 @@ def main():
     )
     
     monthly_data = erbil_data[erbil_data.index.month == month]
+    monthly_data['Day'] = monthly_data.index.day
     
-    if not monthly_data.empty:
-        st.altair_chart(
-            create_chart(
-                monthly_data,
-                ERBIL_COLORS,
-                f"Hourly Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}"
-            ),
-            use_container_width=True
-        )
-    else:
-        st.warning("No data available for the selected month.")
+    st.altair_chart(
+        create_chart(
+            monthly_data,
+            ERBIL_COLORS,
+            "Monthly Temperature Trends (Erbil)"
+        ),
+        use_container_width=True
+    )
 
     display_contact()
 
