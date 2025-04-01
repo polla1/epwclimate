@@ -5,15 +5,15 @@ from database import load_baseline, load_2050, load_2080, read_epw
 from sidebar import display_sidebar
 from contact import display_contact
 
-# Color palette for Erbil scenarios
+# Define color scheme for Erbil climate scenarios
 ERBIL_COLORS = {
     '2023 Baseline': '#00FF00',  # Green
     '2050 Projection': '#0000FF',  # Blue
-    '2080 Projection': '#FF0000'  # Red
+    '2080 Projection': '#FF0000'   # Red
 }
 
-def create_chart(data, colors, title):
-    """Create a line chart with specified colors"""
+def create_chart(data, colors, title, x_axis='DateTime:T'):
+    """Creates a line chart with specified colors and X-axis format."""
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
         var_name='Scenario',
@@ -24,7 +24,7 @@ def create_chart(data, colors, title):
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('DateTime:T', title='Date and Time', axis=alt.Axis(format='%d-%Hh')),
+        x=alt.X(x_axis, title='Day of the Month'),  # Shows only day numbers
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
@@ -39,7 +39,7 @@ def create_chart(data, colors, title):
 
 @st.cache_data
 def load_erbil_data():
-    """Load and cache Erbil climate data"""
+    """Loads and caches climate data for Erbil."""
     return pd.concat([
         load_baseline().rename(columns={'Temperature': '2023 Baseline'}),
         load_2050().rename(columns={'Temperature': '2050 Projection'}),
@@ -50,19 +50,19 @@ def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     st.title("Climate Data Visualization")
     
-    # Load Erbil data
+    # Load Erbil climate data
     erbil_data = load_erbil_data()
     
-    # Handle uploaded files
+    # Sidebar for file uploads
     uploaded_files = display_sidebar()
     custom_data = {}
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
-
-    # Erbil Yearly Comparison
+    
+    # Erbil Climate Scenarios Visualization
     st.header("Erbil Climate Scenarios")
     
-    # Scenario selection
+    # Checkboxes to select scenarios
     selected_erbil = []
     cols = st.columns(3)
     scenarios = list(ERBIL_COLORS.keys())
@@ -82,8 +82,8 @@ def main():
         )
     else:
         st.warning("Please select at least one Erbil scenario")
-
-    # Custom Uploads Visualization
+    
+    # Custom Uploaded Data Visualization
     if custom_data:
         st.header("Uploaded Climate Files")
         custom_df = pd.concat(custom_data.values(), axis=1)
@@ -92,13 +92,13 @@ def main():
         st.altair_chart(
             create_chart(
                 custom_df,
-                {name: '#FFA500' for name in custom_data.keys()},  # Orange for all uploads
+                {name: '#FFA500' for name in custom_data.keys()},  # Orange for uploaded files
                 "Uploaded Temperature Data"
             ),
             use_container_width=True
         )
-
-    # Monthly Analysis (Hourly Data)
+    
+    # Monthly Temperature Analysis
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -114,13 +114,15 @@ def main():
             create_chart(
                 monthly_data,
                 ERBIL_COLORS,
-                f"Hourly Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}"
+                f"Hourly Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}",
+                x_axis='day(DateTime):O'  # Fix X-axis to show only day numbers
             ),
             use_container_width=True
         )
     else:
         st.warning("No data available for the selected month.")
-
+    
+    # Contact Information
     display_contact()
 
 if __name__ == "__main__":
