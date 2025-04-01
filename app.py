@@ -89,12 +89,13 @@ def main():
     else:
         st.warning("No data for selected month")
 
-    # ===== Simplified Chart 3: Extreme Heat Analysis =====
+    # ===== Chart 3: Extreme Heat Analysis =====
     st.header("3. Extreme Heat Analysis")
     
-    # Threshold controls (unchanged)
+    # Threshold controls
     with st.container():
         st.subheader("Temperature Threshold Selector")
+        
         st.markdown("""
         <style>
             div[data-baseweb="slider"] > div { 
@@ -134,19 +135,21 @@ def main():
         st.markdown(severity_html, unsafe_allow_html=True)
         st.markdown("---")
 
-    # Calculate hours (unchanged)
+    # Calculate and display hours
     hours_data = {
         '2023 Baseline': count_hours_above_threshold(load_baseline(), threshold),
         '2050 Projection': count_hours_above_threshold(load_2050(), threshold),
         '2080 Projection': count_hours_above_threshold(load_2080(), threshold)
     }
     
-    # Simplified chart rendering
-    chart = alt.Chart(pd.DataFrame({
-        'Scenario': list(hours_data.keys()),
-        'Hours': list(hours_data.values())
-    }).mark_bar().encode(
-        x=alt.X('Scenario:N', title=''),
+    # Corrected chart syntax
+    chart = alt.Chart(
+        pd.DataFrame({
+            'Scenario': list(hours_data.keys()),
+            'Hours': list(hours_data.values())
+        })
+    ).mark_bar().encode(
+        x=alt.X('Scenario:N', title='', axis=alt.Axis(labelAngle=0)),
         y=alt.Y('Hours:Q', title='Hours Above Threshold'),
         color=alt.Color('Scenario:N').scale(
             domain=list(ERBIL_COLORS.keys()),
@@ -160,7 +163,7 @@ def main():
     
     st.altair_chart(chart, use_container_width=True)
     
-    # Footer (unchanged)
+    # Footer
     display_contact()
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown("<center> Polla Sktani ©2025 </center>", unsafe_allow_html=True)
