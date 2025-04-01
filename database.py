@@ -21,20 +21,13 @@ def read_epw(file, base_year=2023):
     return df.set_index('DateTime')[['Temperature']]
 
 def count_hours_above_threshold(data, threshold):
-    """Count hours where temperature exceeds threshold"""
     return (data['Temperature'] >= threshold).sum()
 
 def load_baseline(file=None):
-    if file:
-        return read_epw(file)
-    return read_epw('2023_scenario_Erbil-Baseline.epw')
+    return read_epw(file) if file else read_epw('2023_scenario_Erbil-Baseline.epw')
 
 def load_2050(file=None):
-    if file:
-        return read_epw(file)
-    return read_epw('2050_scenario_Erbil.epw')
+    return read_epw(file) if file else read_epw('2050_scenario_Erbil.epw')
 
 def load_2080(file=None):
-    if file:
-        return read_epw(file)
-    return read_epw('2080_scenario_Erbil.epw')
+    return read_epw(file) if file else read_epw('2080_scenario_Erbil.epw')
