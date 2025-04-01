@@ -4,6 +4,16 @@ from database import load_baseline, load_2050, load_2080, read_epw
 from sidebar import display_sidebar
 from contact import display_contact
 
+# Color palette for all scenarios
+COLOR_PALETTE = [
+    "#FF4B4B",  # 2023 Baseline
+    "#0068C9",  # 2050 Projection
+    "#32D39D",  # 2080 Projection
+    "#FFA500",  # Custom Upload 1
+    "#800080",  # Custom Upload 2
+    "#00FFFF"   # Custom Upload 3
+]
+
 @st.cache_data
 def load_all_data():
     """Load and cache all baseline climate data"""
@@ -62,15 +72,19 @@ def main():
 
     # Display chart or warning
     if selected:
+        # Dynamically adjust colors based on selection
+        num_series = len(selected)
+        chart_colors = COLOR_PALETTE[:num_series] if num_series <= len(COLOR_PALETTE) else None
+        
         st.line_chart(
             combined[selected],
             use_container_width=True,
-            color=["#FF4B4B", "#0068C9", "#32D39D"]  # Consistent colors
+            color=chart_colors
         )
     else:
         st.warning("Please select at least one scenario to display")
 
-    # Monthly Analysis Section (unchanged)
+    # Monthly Analysis Section
     st.header("Monthly Temperature Analysis")
     month = st.selectbox(
         "Select Month", 
@@ -83,7 +97,7 @@ def main():
     st.line_chart(
         monthly_data,
         use_container_width=True,
-        color=["#FF4B4B", "#0068C9", "#32D39D"]  # Match yearly colors
+        color=COLOR_PALETTE[:3]  # Always use first 3 colors for monthly
     )
 
     display_contact()
