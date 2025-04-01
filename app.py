@@ -40,16 +40,13 @@ def create_chart(data, colors, title, x_axis='DateTime:T'):
 @st.cache_data
 def load_erbil_data():
     """Loads and caches climate data for Erbil."""
-    df = pd.concat([
+    data = pd.concat([
         load_baseline().rename(columns={'Temperature': '2023 Baseline'}),
         load_2050().rename(columns={'Temperature': '2050 Projection'}),
         load_2080().rename(columns={'Temperature': '2080 Projection'})
     ], axis=1)
-    
-    df = df.reset_index()  # Ensure index is a column
-    df.rename(columns={df.columns[0]: 'DateTime'}, inplace=True)  # Rename first column to 'DateTime'
-    
-    return df.set_index('DateTime')  # Set it back as index
+    data.index = pd.to_datetime(data.index)  # Ensure DateTime index is properly formatted
+    return data
 
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
@@ -120,7 +117,7 @@ def main():
                 monthly_data,
                 ERBIL_COLORS,
                 f"Hourly Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}",
-                x_axis='day(DateTime):Q'  # Fix X-axis to show only day numbers (continuous axis)
+                x_axis='DateTime:T'  # Keep proper time format to ensure correct plotting
             ),
             use_container_width=True
         )
