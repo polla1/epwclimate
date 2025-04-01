@@ -1,31 +1,40 @@
 import streamlit as st
 
 def display_sidebar():
+    # Sidebar header
     st.sidebar.header("📊 Climate Data Analysis")
+    st.sidebar.subheader("Upload EPW Files")
+    st.sidebar.write("Upload (EPW format) files to visualize temperature projections for other cities.")
     
-    # File uploader
+    # File uploader with customizations
     uploaded_files = st.sidebar.file_uploader(
-        "Upload EPW files to compare projections",
+        "Choose EPW files to upload",
         type="epw",
-        accept_multiple_files=True
+        accept_multiple_files=True,
+        label_visibility="collapsed"
     )
 
-    # Show uploaded file names in a compact format
+    # Show uploaded file names in a neat list
     if uploaded_files:
-        st.sidebar.markdown("**Files Uploaded:**")
+        st.sidebar.write("### Files Uploaded:")
         for file in uploaded_files:
-            st.sidebar.caption(f"📄 {file.name}")
+            st.sidebar.write(f"- {file.name}")
+    
+    # Reset button to clear the uploaded files
+    if uploaded_files:
+        if st.sidebar.button("Reset Files"):
+            uploaded_files = None
+            st.sidebar.write("### Files Reset")
+            st.experimental_rerun()
 
-    # Reset button
-    if uploaded_files and st.sidebar.button("Reset Files"):
-        uploaded_files = None
-        st.sidebar.experimental_rerun()
+    # Information panel or instructions for users
+    st.sidebar.markdown("""
+    ## 🌍 About
+    The climate analysis tool allows you to visualize and analyze temperature projections (2023, 2050, and 2080). 
+    Upload your own EPW files to compare projections. 
 
-    # Separator
-    st.sidebar.markdown("---")
-
-    # Compact information panel
-    st.sidebar.caption("🌍 **Compare climate projections (2023, 2050, 2080).**")
-    st.sidebar.caption("📅 **Use the dropdown to analyze monthly trends.**")
+    ## 📅 Monthly Temperature Analysis
+    Select a month from the dropdown to view temperature trends.
+    """)
     
     return uploaded_files
