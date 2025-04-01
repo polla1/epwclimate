@@ -5,7 +5,7 @@ def display_sidebar():
     st.sidebar.subheader("Upload EPW Files")
 
     uploaded_files = st.sidebar.file_uploader(
-        "Upload EPW files",
+        "Upload custom EPW files",
         type="epw",
         accept_multiple_files=True
     )
