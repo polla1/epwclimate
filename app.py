@@ -115,7 +115,7 @@ def main():
                 monthly_data,
                 ERBIL_COLORS,
                 f"Hourly Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}",
-                x_axis='day(DateTime):O'  # Fix X-axis to show only day numbers
+                x_axis='day(DateTime):Q'  # Fix X-axis to show only day numbers (continuous axis)
             ),
             use_container_width=True
         )
