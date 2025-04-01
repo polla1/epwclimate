@@ -4,7 +4,7 @@ def display_sidebar():
     # Sidebar header
     st.sidebar.header("📊 Climate Data Analysis")
     st.sidebar.subheader("Upload EPW Files")
-    st.sidebar.write("Upload climate data files (EPW format) to visualize temperature projections for other cities.")
+    st.sidebar.write("Upload (EPW format) files to visualize temperature projections for other cities.")
     
     # File uploader with customizations
     uploaded_files = st.sidebar.file_uploader(
