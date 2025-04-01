@@ -1,3 +1,5 @@
+import streamlit as st
+
 def display_sidebar():
     with st.sidebar:
         st.header("Custom Data Upload")
