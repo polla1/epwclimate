@@ -15,7 +15,7 @@ ERBIL_COLORS = {
 def create_chart(data, colors, title, x_axis='DateTime:T'):
     """Creates a line chart with specified colors and X-axis format."""
     df_melted = data.reset_index().melt(
-        id_vars=['DateTime'],
+        id_vars=['DateTime'] if 'DateTime' in data.columns else ['Day'],
         var_name='Scenario',
         value_name='Temperature'
     )
@@ -30,7 +30,7 @@ def create_chart(data, colors, title, x_axis='DateTime:T'):
             domain=list(colors.keys()),
             range=list(colors.values())
         ),
-        tooltip=['Scenario', 'DateTime', alt.Tooltip('Temperature:Q', format='.1f')]
+        tooltip=['Scenario', 'DateTime' if 'DateTime' in df_melted.columns else 'Day', alt.Tooltip('Temperature:Q', format='.1f')]
     ).properties(
         height=400,
         title=title
@@ -107,7 +107,8 @@ def main():
         key="month_select"
     )
     
-    monthly_data = erbil_data[erbil_data.index.month == month]
+    monthly_data = erbil_data[erbil_data.index.month == month].copy()
+    monthly_data['Day'] = monthly_data.index.day  # Extract day of the month
     
     if not monthly_data.empty:
         st.altair_chart(
@@ -115,7 +116,7 @@ def main():
                 monthly_data,
                 ERBIL_COLORS,
                 f"Hourly Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}",
-                x_axis='day(DateTime):Q'  # Fix X-axis to show only day numbers (continuous axis)
+                x_axis='Day:Q'  # Use extracted day column
             ),
             use_container_width=True
         )
