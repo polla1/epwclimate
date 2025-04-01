@@ -109,7 +109,7 @@ def main():
         threshold = st.slider(
             "Select temperature threshold (°C)",
             min_value=30,
-            max_value=60,
+            max_value=58,
             value=40,
             step=1,
             help="Analyze hours above this temperature level",
