@@ -5,39 +5,22 @@ from database import load_baseline, load_2050, load_2080, read_epw
 from sidebar import display_sidebar
 from contact import display_contact
 
-def create_transparent_chart(data, colors):
-    """Create an Altair chart with transparent lines"""
-    rgba_colors = [
-        f"rgba({int(r*255)},{int(g*255)},{int(b*255)},0.7)"
-        for r, g, b in [
-            (0.92, 0.29, 0.29),  # 2023 Baseline
-            (0.0, 0.41, 0.79),   # 2050 Projection
-            (0.2, 0.83, 0.62),   # 2080 Projection
-            (1.0, 0.65, 0.0),    # Custom Upload 1
-            (0.5, 0.0, 0.5),     # Custom Upload 2
-            (0.0, 1.0, 1.0)      # Custom Upload 3
-        ]
-    ]
-    
+def create_transparent_chart(data):
+    """Create a line chart with semi-transparent lines"""
     chart = alt.Chart(data.reset_index()).transform_fold(
         list(data.columns),
         as_=['Scenario', 'Temperature']
     ).mark_line(
-        strokeWidth=2,
-        opacity=0.7
+        opacity=0.6,  # Controls transparency
+        strokeWidth=2
     ).encode(
-        x=alt.X('DateTime:T', title='Date'),
-        y=alt.Y('Temperature:Q', title='Temperature (°C)'),
-        color=alt.Color('Scenario:N').scale(
-            domain=list(data.columns),
-            range=rgba_colors[:len(data.columns)]
-        ),
-        tooltip=['Scenario', alt.Tooltip('Temperature:Q', format='.1f')]
+        x='DateTime:T',
+        y='Temperature:Q',
+        color='Scenario:N',
+        tooltip=['Scenario', 'Temperature']
     ).properties(
-        height=500
-    ).configure_legend(
-        titleFontSize=14,
-        labelFontSize=12
+        height=400,
+        width=800
     )
     return chart
 
@@ -101,7 +84,7 @@ def main():
     if selected:
         chart_data = combined[selected]
         st.altair_chart(
-            create_transparent_chart(chart_data, colors=None),
+            create_transparent_chart(chart_data),
             use_container_width=True
         )
     else:
