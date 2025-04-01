@@ -1,6 +1,5 @@
 import pandas as pd
 from datetime import datetime
-import io
 
 def read_epw(file, base_year=2023):
     try:
@@ -21,7 +20,6 @@ def read_epw(file, base_year=2023):
     
     return df.set_index('DateTime')[['Temperature']]
 
-# NEW FUNCTION ADDED
 def count_hours_above_threshold(data, threshold):
     """Count hours where temperature exceeds threshold"""
     return (data['Temperature'] >= threshold).sum()
