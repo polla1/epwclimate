@@ -5,15 +5,15 @@ from database import load_baseline, load_2050, load_2080, read_epw
 from sidebar import display_sidebar
 from contact import display_contact
 
-# Color palette for Erbil scenarios
+# Define color scheme for scenarios
 ERBIL_COLORS = {
     '2023 Baseline': '#00FF00',  # Green
     '2050 Projection': '#0000FF',  # Blue
     '2080 Projection': '#FF0000'  # Red
 }
 
+# Function to create a line chart
 def create_chart(data, colors, title):
-    """Create a line chart with specified colors"""
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
         var_name='Scenario',
@@ -53,16 +53,15 @@ def main():
     # Load Erbil data
     erbil_data = load_erbil_data()
     
-    # Handle uploaded files
+    # Sidebar for file uploads
     uploaded_files = display_sidebar()
     custom_data = {}
     for file in uploaded_files:
         custom_data[file.name] = read_epw(file)['Temperature']
 
-    # Erbil Yearly Comparison
+    # Erbil Climate Scenarios
     st.header("Erbil Climate Scenarios")
     
-    # Scenario selection
     selected_erbil = []
     cols = st.columns(3)
     scenarios = list(ERBIL_COLORS.keys())
@@ -83,7 +82,7 @@ def main():
     else:
         st.warning("Please select at least one Erbil scenario")
 
-    # Custom Uploads Visualization
+    # Uploaded Climate Files
     if custom_data:
         st.header("Uploaded Climate Files")
         custom_df = pd.concat(custom_data.values(), axis=1)
@@ -92,13 +91,13 @@ def main():
         st.altair_chart(
             create_chart(
                 custom_df,
-                {name: '#FFA500' for name in custom_data.keys()},  # Orange for all uploads
+                {name: '#FFA500' for name in custom_data.keys()},  # Orange for uploads
                 "Uploaded Temperature Data"
             ),
             use_container_width=True
         )
 
-    # Monthly Analysis (Erbil only)
+    # Monthly Temperature Analysis
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -108,13 +107,14 @@ def main():
     )
     
     monthly_data = erbil_data[erbil_data.index.month == month]
- monthly_data.index = monthly_data.index.day  # Convert index to day numbers only
-st.line_chart(
-    monthly_data,
-    use_container_width=True
-)
+    monthly_data.index = monthly_data.index.day  # Show only day numbers
+    
+    st.line_chart(
+        monthly_data,
+        use_container_width=True
+    )
 
-
+    # Display contact info
     display_contact()
 
 if __name__ == "__main__":
