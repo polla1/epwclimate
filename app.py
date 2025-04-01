@@ -30,7 +30,7 @@ def create_chart(data, colors, title):
             domain=list(colors.keys()),
             range=list(colors.values())
         ),
-        tooltip=['Scenario', alt.Tooltip('Temperature:Q', format='.1f')]
+        tooltip=['Scenario', alt.Tooltip('Temperature:Q', format='.1f'), 'DateTime:T']
     ).properties(
         height=400,
         title=title
@@ -112,7 +112,7 @@ def main():
         create_chart(
             monthly_data,
             ERBIL_COLORS,
-            f"Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}"
+            "Monthly Temperature Trends"
         ),
         use_container_width=True
     )
