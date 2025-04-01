@@ -5,15 +5,41 @@ from database import load_baseline, load_2050, load_2080, read_epw
 from sidebar import display_sidebar
 from contact import display_contact
 
-# Color palette with transparency
-COLOR_PALETTE = [
-    "#FF4B4B80",  # 2023 Baseline (50% opacity)
-    "#0068C980",  # 2050 Projection
-    "#32D39D80",  # 2080 Projection
-    "#FFA50080",  # Custom Upload 1
-    "#80008080",  # Custom Upload 2
-    "#00FFFF80"   # Custom Upload 3
-]
+def create_transparent_chart(data, colors):
+    """Create an Altair chart with transparent lines"""
+    rgba_colors = [
+        f"rgba({int(r*255)},{int(g*255)},{int(b*255)},0.7)"
+        for r, g, b in [
+            (0.92, 0.29, 0.29),  # 2023 Baseline
+            (0.0, 0.41, 0.79),   # 2050 Projection
+            (0.2, 0.83, 0.62),   # 2080 Projection
+            (1.0, 0.65, 0.0),    # Custom Upload 1
+            (0.5, 0.0, 0.5),     # Custom Upload 2
+            (0.0, 1.0, 1.0)      # Custom Upload 3
+        ]
+    ]
+    
+    chart = alt.Chart(data.reset_index()).transform_fold(
+        list(data.columns),
+        as_=['Scenario', 'Temperature']
+    ).mark_line(
+        strokeWidth=2,
+        opacity=0.7
+    ).encode(
+        x=alt.X('DateTime:T', title='Date'),
+        y=alt.Y('Temperature:Q', title='Temperature (°C)'),
+        color=alt.Color('Scenario:N').scale(
+            domain=list(data.columns),
+            range=rgba_colors[:len(data.columns)]
+        ),
+        tooltip=['Scenario', alt.Tooltip('Temperature:Q', format='.1f')]
+    ).properties(
+        height=500
+    ).configure_legend(
+        titleFontSize=14,
+        labelFontSize=12
+    )
+    return chart
 
 @st.cache_data
 def load_all_data():
@@ -23,27 +49,6 @@ def load_all_data():
         '2050': load_2050(),
         '2080': load_2080()
     }
-
-def create_transparent_chart(data, colors):
-    """Create an Altair chart with transparent lines"""
-    chart = alt.Chart(data.reset_index()).transform_fold(
-        list(data.columns),
-        as_=['Scenario', 'Temperature']
-    ).mark_line(
-        strokeWidth=2,
-        opacity=0.7  # Direct opacity control
-    ).encode(
-        x='DateTime:T',
-        y='Temperature:Q',
-        color=alt.Color('Scenario:N').scale(
-            domain=list(data.columns),
-            range=colors[:len(data.columns)]
-        ),
-        tooltip=['Scenario', 'Temperature']
-    ).properties(
-        height=500
-    )
-    return chart
 
 def main():
     st.set_page_config(page_title="Erbil Climate Analysis", layout="wide")
@@ -96,13 +101,13 @@ def main():
     if selected:
         chart_data = combined[selected]
         st.altair_chart(
-            create_transparent_chart(chart_data, COLOR_PALETTE),
+            create_transparent_chart(chart_data, colors=None),
             use_container_width=True
         )
     else:
         st.warning("Please select at least one scenario to display")
 
-    # Monthly Analysis Section (unchanged)
+    # Monthly Analysis Section
     st.header("Monthly Temperature Analysis")
     month = st.selectbox(
         "Select Month", 
@@ -114,8 +119,7 @@ def main():
     monthly_data = combined[combined.index.month == month]
     st.line_chart(
         monthly_data,
-        use_container_width=True,
-        color=COLOR_PALETTE[:3]  # Keep original colors for monthly
+        use_container_width=True
     )
 
     display_contact()
