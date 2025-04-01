@@ -30,8 +30,8 @@ def display_sidebar():
     # Information panel or instructions for users
     st.sidebar.markdown("""
     ## 🌍 About
-    The climate analysis tool allows you to visualize and analyze temperature projections for Erbil (2023, 2050, and 2080). 
-    Upload your own EPW files to compare projections or explore baseline data. 
+    The climate analysis tool allows you to visualize and analyze temperature projections (2023, 2050, and 2080). 
+    Upload your own EPW files to compare projections. 
 
     ## 📅 Monthly Temperature Analysis
     Select a month from the dropdown to view temperature trends.
