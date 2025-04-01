@@ -12,7 +12,7 @@ ERBIL_COLORS = {
     '2080 Projection': '#FF0000'   # Red
 }
 
-def create_chart(data, colors, title, x_axis='DateTime:T', x_format='%d'):
+def create_chart(data, colors, title, x_axis='DateTime:T', x_format='%B'):
     """Creates a line chart with specified colors and X-axis format."""
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
@@ -24,7 +24,7 @@ def create_chart(data, colors, title, x_axis='DateTime:T', x_format='%d'):
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X(x_axis, title='Day of the Month', axis=alt.Axis(format=x_format)),  # Shows only day numbers
+        x=alt.X(x_axis, title='Month', axis=alt.Axis(format=x_format)),  # Shows full month names
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
