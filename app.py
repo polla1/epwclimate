@@ -1,19 +1,18 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from database import load_baseline, load_2050, load_2080, read_epw
+# UPDATE IMPORT LINE
+from database import load_baseline, load_2050, load_2080, read_epw, count_hours_above_threshold
 from sidebar import display_sidebar
 from contact import display_contact
 
-# Define color scheme for Erbil climate scenarios
 ERBIL_COLORS = {
-    '2023 Baseline': '#00FF00',  # Green
-    '2050 Projection': '#0000FF',  # Blue
-    '2080 Projection': '#FF0000'   # Red
+    '2023 Baseline': '#00FF00',
+    '2050 Projection': '#0000FF',
+    '2080 Projection': '#FF0000'
 }
 
 def create_chart(data, colors, title, x_axis='DateTime:T', x_format='%B'):
-    """Creates a line chart with specified colors and X-axis format."""
     df_melted = data.reset_index().melt(
         id_vars=['DateTime'],
         var_name='Scenario',
@@ -24,7 +23,7 @@ def create_chart(data, colors, title, x_axis='DateTime:T', x_format='%B'):
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X(x_axis, title='Month', axis=alt.Axis(format=x_format)),  # Shows full month names
+        x=alt.X(x_axis, title='Month', axis=alt.Axis(format=x_format)),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
@@ -39,35 +38,29 @@ def create_chart(data, colors, title, x_axis='DateTime:T', x_format='%B'):
 
 @st.cache_data
 def load_erbil_data():
-    """Loads and caches climate data for Erbil."""
     data = pd.concat([
         load_baseline().rename(columns={'Temperature': '2023 Baseline'}),
         load_2050().rename(columns={'Temperature': '2050 Projection'}),
         load_2080().rename(columns={'Temperature': '2080 Projection'})
     ], axis=1)
-    data.index = pd.to_datetime(data.index)  # Ensure DateTime index is properly formatted
+    data.index = pd.to_datetime(data.index)
     return data
 
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     st.title("Climate Data Visualization")
     
-    # Load Erbil climate data
+    # Load data
     erbil_data = load_erbil_data()
-    
-    # Sidebar for file uploads
     uploaded_files = display_sidebar()
     custom_data = {}
     
     if uploaded_files:
         for file in uploaded_files:
-            # Pass the uploaded file object to read_epw
             custom_data[file.name] = read_epw(file)['Temperature']
     
-    # Erbil Climate Scenarios Visualization
+    # Original Chart 1
     st.header("Erbil Climate Scenarios")
-    
-    # Checkboxes to select scenarios
     selected_erbil = []
     cols = st.columns(3)
     scenarios = list(ERBIL_COLORS.keys())
@@ -88,22 +81,21 @@ def main():
     else:
         st.warning("Please select at least one Erbil scenario")
     
-    # Custom Uploaded Data Visualization
+    # Original Chart 2
     if custom_data:
         st.header("Uploaded Climate Files")
         custom_df = pd.concat(custom_data.values(), axis=1)
         custom_df.columns = custom_data.keys()
-        
         st.altair_chart(
             create_chart(
                 custom_df,
-                {name: '#FFA500' for name in custom_data.keys()},  # Orange for uploaded files
+                {name: '#FFA500' for name in custom_data.keys()},
                 "Uploaded Temperature Data"
             ),
             use_container_width=True
         )
     
-    # Monthly Temperature Analysis
+    # Original Chart 3 (Monthly Analysis)
     st.header("Monthly Temperature Analysis (Erbil)")
     month = st.selectbox(
         "Select Month", 
@@ -111,9 +103,7 @@ def main():
         format_func=lambda x: pd.Timestamp(2023, x, 1).strftime('%B'),
         key="month_select"
     )
-    
     monthly_data = erbil_data[erbil_data.index.month == month]
-    
     if not monthly_data.empty:
         st.altair_chart(
             create_chart(
@@ -121,19 +111,60 @@ def main():
                 ERBIL_COLORS,
                 f"Hourly Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}",
                 x_axis='DateTime:T',
-                x_format='%d'  # Ensures only day numbers are shown
+                x_format='%d'
             ),
             use_container_width=True
         )
     else:
         st.warning("No data available for the selected month.")
     
-    # Contact Information
+    # NEW CHART 4: Hours Above Threshold
+    st.header("Extreme Heat Hours Analysis")
+    
+    # Add threshold control to sidebar
+    with st.sidebar:
+        st.markdown("---")
+        threshold = st.number_input(
+            "🌡️ Temperature Threshold (°C)",
+            min_value=30,
+            max_value=60,
+            value=40,
+            step=1,
+            help="Analyze hours above this temperature"
+        )
+    
+    # Calculate hours above threshold
+    hours_data = {
+        '2023 Baseline': count_hours_above_threshold(load_baseline(), threshold),
+        '2050 Projection': count_hours_above_threshold(load_2050(), threshold),
+        '2080 Projection': count_hours_above_threshold(load_2080(), threshold)
+    }
+    
+    # Create bar chart
+    df_hours = pd.DataFrame({
+        'Scenario': list(hours_data.keys()),
+        'Hours': list(hours_data.values())
+    })
+    
+    chart = alt.Chart(df_hours).mark_bar().encode(
+        x=alt.X('Scenario:N', title='', sort=list(ERBIL_COLORS.keys())),
+        y=alt.Y('Hours:Q', title='Hours Above Threshold'),
+        color=alt.Color('Scenario:N').scale(
+            domain=list(ERBIL_COLORS.keys()),
+            range=list(ERBIL_COLORS.values())
+        ),
+        tooltip=['Scenario', alt.Tooltip('Hours:Q', title='Hours')]
+    ).properties(
+        height=400,
+        title=f"Annual Hours Above {threshold}°C"
+    )
+    
+    st.altair_chart(chart, use_container_width=True)
+    
+    # Footer
     display_contact()
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("<center> Polla Sktani ©2025 </center>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
-
-# Footer for copyright information
-st.markdown("<hr>", unsafe_allow_html=True)  # Add a horizontal line for separation
-st.markdown("<center> Polla Sktani ©2025 </center>", unsafe_allow_html=True)
