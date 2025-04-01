@@ -1,12 +1,13 @@
 import pandas as pd
 from datetime import datetime
-import pandas as pd
+import io
 
-def read_epw(file_path, base_year=2023):
+def read_epw(file, base_year=2023):
     try:
-        df = pd.read_csv(file_path, skiprows=8, header=None)
+        # Read the file directly from the uploaded file stream
+        df = pd.read_csv(file, skiprows=8, header=None)
     except UnicodeDecodeError:
-        df = pd.read_csv(file_path, skiprows=8, header=None, encoding='latin-1')
+        df = pd.read_csv(file, skiprows=8, header=None, encoding='latin-1')
     
     # Convert to proper data types
     df = df.iloc[:, [0, 1, 2, 3, 6]]
@@ -22,11 +23,17 @@ def read_epw(file_path, base_year=2023):
     
     return df.set_index('DateTime')[['Temperature']]
 
-def load_baseline():
+def load_baseline(file=None):
+    if file:
+        return read_epw(file)
     return read_epw('2023_scenario_Erbil-Baseline.epw')
 
-def load_2050():
+def load_2050(file=None):
+    if file:
+        return read_epw(file)
     return read_epw('2050_scenario_Erbil.epw')
 
-def load_2080():
+def load_2080(file=None):
+    if file:
+        return read_epw(file)
     return read_epw('2080_scenario_Erbil.epw')
