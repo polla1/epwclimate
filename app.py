@@ -58,8 +58,11 @@ def main():
     # Sidebar for file uploads
     uploaded_files = display_sidebar()
     custom_data = {}
-    for file in uploaded_files:
-        custom_data[file.name] = read_epw(file)['Temperature']
+    
+    if uploaded_files:
+        for file in uploaded_files:
+            # Pass the uploaded file object to read_epw
+            custom_data[file.name] = read_epw(file)['Temperature']
     
     # Erbil Climate Scenarios Visualization
     st.header("Erbil Climate Scenarios")
