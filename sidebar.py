@@ -4,7 +4,7 @@ def display_sidebar():
     # Sidebar header
     st.sidebar.header("📊 Climate Data Analysis")
     st.sidebar.subheader("Upload EPW Files")
-    st.sidebar.write("Upload climate data files (EPW format) to visualize temperature projections for Erbil. You can upload multiple files at once.")
+    st.sidebar.write("Upload climate data files (EPW format) to visualize temperature projections for other cities.")
     
     # File uploader with customizations
     uploaded_files = st.sidebar.file_uploader(
@@ -34,7 +34,7 @@ def display_sidebar():
     Upload your own EPW files to compare projections or explore baseline data. 
 
     ## 📅 Monthly Temperature Analysis
-    Select a month from the dropdown to view temperature trends. The data will be displayed as daily trends for the selected month.
+    Select a month from the dropdown to view temperature trends.
     """)
     
     return uploaded_files
