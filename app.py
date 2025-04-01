@@ -20,13 +20,11 @@ def create_chart(data, colors, title):
         value_name='Temperature'
     )
     
-    df_melted['Day'] = df_melted['DateTime'].dt.day
-    
     chart = alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
-        x=alt.X('Day:O', title='Day of Month'),
+        x=alt.X('day(DateTime):O', title='Day of Month'),
         y=alt.Y('Temperature:Q', title='Temperature (°C)'),
         color=alt.Color('Scenario:N').scale(
             domain=list(colors.keys()),
@@ -110,13 +108,11 @@ def main():
     )
     
     monthly_data = erbil_data[erbil_data.index.month == month]
-    monthly_data['Day'] = monthly_data.index.day
-    
     st.altair_chart(
         create_chart(
             monthly_data,
             ERBIL_COLORS,
-            "Monthly Temperature Trends (Erbil)"
+            f"Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}"
         ),
         use_container_width=True
     )
