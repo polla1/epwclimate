@@ -133,3 +133,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Footer for copyright information
+st.markdown("<hr>", unsafe_allow_html=True)  # Add a horizontal line for separation
+st.markdown("<center> Polla Sktani ©2025 </center>", unsafe_allow_html=True)
