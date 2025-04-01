@@ -1,17 +1,18 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
 from database import load_baseline, load_2050, load_2080, read_epw
 from sidebar import display_sidebar
 from contact import display_contact
 
-# Color palette for all scenarios
+# Color palette with transparency
 COLOR_PALETTE = [
-    "#FF4B4B",  # 2023 Baseline
-    "#0068C9",  # 2050 Projection
-    "#32D39D",  # 2080 Projection
-    "#FFA500",  # Custom Upload 1
-    "#800080",  # Custom Upload 2
-    "#00FFFF"   # Custom Upload 3
+    "#FF4B4B80",  # 2023 Baseline (50% opacity)
+    "#0068C980",  # 2050 Projection
+    "#32D39D80",  # 2080 Projection
+    "#FFA50080",  # Custom Upload 1
+    "#80008080",  # Custom Upload 2
+    "#00FFFF80"   # Custom Upload 3
 ]
 
 @st.cache_data
@@ -22,6 +23,27 @@ def load_all_data():
         '2050': load_2050(),
         '2080': load_2080()
     }
+
+def create_transparent_chart(data, colors):
+    """Create an Altair chart with transparent lines"""
+    chart = alt.Chart(data.reset_index()).transform_fold(
+        list(data.columns),
+        as_=['Scenario', 'Temperature']
+    ).mark_line(
+        strokeWidth=2,
+        opacity=0.7  # Direct opacity control
+    ).encode(
+        x='DateTime:T',
+        y='Temperature:Q',
+        color=alt.Color('Scenario:N').scale(
+            domain=list(data.columns),
+            range=colors[:len(data.columns)]
+        ),
+        tooltip=['Scenario', 'Temperature']
+    ).properties(
+        height=500
+    )
+    return chart
 
 def main():
     st.set_page_config(page_title="Erbil Climate Analysis", layout="wide")
@@ -72,19 +94,15 @@ def main():
 
     # Display chart or warning
     if selected:
-        # Dynamically adjust colors based on selection
-        num_series = len(selected)
-        chart_colors = COLOR_PALETTE[:num_series] if num_series <= len(COLOR_PALETTE) else None
-        
-        st.line_chart(
-            combined[selected],
-            use_container_width=True,
-            color=chart_colors
+        chart_data = combined[selected]
+        st.altair_chart(
+            create_transparent_chart(chart_data, COLOR_PALETTE),
+            use_container_width=True
         )
     else:
         st.warning("Please select at least one scenario to display")
 
-    # Monthly Analysis Section
+    # Monthly Analysis Section (unchanged)
     st.header("Monthly Temperature Analysis")
     month = st.selectbox(
         "Select Month", 
@@ -97,7 +115,7 @@ def main():
     st.line_chart(
         monthly_data,
         use_container_width=True,
-        color=COLOR_PALETTE[:3]  # Always use first 3 colors for monthly
+        color=COLOR_PALETTE[:3]  # Keep original colors for monthly
     )
 
     display_contact()
