@@ -108,10 +108,12 @@ def main():
     )
     
     monthly_data = erbil_data[erbil_data.index.month == month]
-    st.line_chart(
-        monthly_data,
-        use_container_width=True
-    )
+ monthly_data.index = monthly_data.index.day  # Convert index to day numbers only
+st.line_chart(
+    monthly_data,
+    use_container_width=True
+)
+
 
     display_contact()
 
