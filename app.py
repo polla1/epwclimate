@@ -109,7 +109,7 @@ def main():
         threshold = st.slider(
             "Select temperature threshold (°C)",
             min_value=30,
-            max_value=58,
+            max_value=58,  # Changed from 60 to 58
             value=40,
             step=1,
             help="Analyze hours above this temperature level",
@@ -142,7 +142,7 @@ def main():
         '2080 Projection': count_hours_above_threshold(load_2080(), threshold)
     }
     
-    # Corrected chart syntax
+    # Create chart
     chart = alt.Chart(
         pd.DataFrame({
             'Scenario': list(hours_data.keys()),
