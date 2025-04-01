@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-# UPDATE IMPORT LINE
 from database import load_baseline, load_2050, load_2080, read_epw, count_hours_above_threshold
 from sidebar import display_sidebar
 from contact import display_contact
@@ -19,7 +18,7 @@ def create_chart(data, colors, title, x_axis='DateTime:T', x_format='%B'):
         value_name='Temperature'
     )
     
-    chart = alt.Chart(df_melted).mark_line(
+    return alt.Chart(df_melted).mark_line(
         opacity=0.7,
         strokeWidth=2
     ).encode(
@@ -34,7 +33,6 @@ def create_chart(data, colors, title, x_axis='DateTime:T', x_format='%B'):
         height=400,
         title=title
     )
-    return chart
 
 @st.cache_data
 def load_erbil_data():
@@ -48,55 +46,79 @@ def load_erbil_data():
 
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
-    st.title("Climate Data Visualization")
+    st.title("🌡️ Erbil Climate Projections")
     
     # Load data
     erbil_data = load_erbil_data()
     uploaded_files = display_sidebar()
-    custom_data = {}
     
-    if uploaded_files:
-        for file in uploaded_files:
-            custom_data[file.name] = read_epw(file)['Temperature']
-    
-    # Original Chart 1
-    st.header("Erbil Climate Scenarios")
+    # ===== Sidebar Threshold Control =====
+    with st.sidebar:
+        st.markdown("---")
+        st.markdown("### 🔥 Heat Threshold Selector")
+        
+        # Visual temperature scale
+        st.markdown("""
+        <style>
+            div[data-baseweb="slider"] > div { 
+                background: linear-gradient(90deg, #90EE90 0%, #FFA500 50%, #FF4500 100%);
+                height: 8px;
+                border-radius: 4px;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        threshold = st.slider(
+            "Select temperature threshold (°C)",
+            min_value=30,
+            max_value=60,
+            value=40,
+            step=1,
+            help="Analyze hours above this temperature level",
+            key="temp_threshold"
+        )
+        
+        # Severity indicators
+        severity_html = f"""
+        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+            <div style="text-align: center; background: {'#90EE90' if threshold <35 else '#f0f0f0'}; 
+                        padding: 8px; border-radius: 5px; width: 32%;">
+                🌱 Mild<br><small>(<35°C)</small>
+            </div>
+            <div style="text-align: center; background: {'#FFA500' if 35<=threshold<45 else '#f0f0f0'}; 
+                        padding: 8px; border-radius: 5px; width: 32%;">
+                🔥 Hot<br><small>(35-44°C)</small>
+            </div>
+            <div style="text-align: center; background: {'#FF4500' if threshold>=45 else '#f0f0f0'}; 
+                        padding: 8px; border-radius: 5px; width: 32%;">
+                ☠️ Extreme<br><small>(≥45°C)</small>
+            </div>
+        </div>
+        """
+        st.markdown(severity_html, unsafe_allow_html=True)
+
+    # ===== Original Charts =====
+    # Chart 1: Scenarios
+    st.header("1. Climate Scenario Comparison")
     selected_erbil = []
     cols = st.columns(3)
-    scenarios = list(ERBIL_COLORS.keys())
-    for i, col in enumerate(cols):
-        with col:
-            if st.checkbox(scenarios[i], value=True, key=f"erbil_{i}"):
-                selected_erbil.append(scenarios[i])
+    for i, scenario in enumerate(ERBIL_COLORS):
+        with cols[i]:
+            if st.checkbox(scenario, value=True, key=f"erbil_{i}"):
+                selected_erbil.append(scenario)
     
     if selected_erbil:
         st.altair_chart(
             create_chart(
                 erbil_data[selected_erbil],
                 {k: v for k, v in ERBIL_COLORS.items() if k in selected_erbil},
-                "Erbil Temperature Projections"
-            ),
-            use_container_width=True
-        )
+                "Temperature Projections Over Time"
+            ), use_container_width=True)
     else:
-        st.warning("Please select at least one Erbil scenario")
-    
-    # Original Chart 2
-    if custom_data:
-        st.header("Uploaded Climate Files")
-        custom_df = pd.concat(custom_data.values(), axis=1)
-        custom_df.columns = custom_data.keys()
-        st.altair_chart(
-            create_chart(
-                custom_df,
-                {name: '#FFA500' for name in custom_data.keys()},
-                "Uploaded Temperature Data"
-            ),
-            use_container_width=True
-        )
-    
-    # Original Chart 3 (Monthly Analysis)
-    st.header("Monthly Temperature Analysis (Erbil)")
+        st.warning("Please select at least one scenario")
+
+    # Chart 2: Monthly Analysis
+    st.header("2. Monthly Temperature Patterns")
     month = st.selectbox(
         "Select Month", 
         range(1, 13), 
@@ -109,54 +131,62 @@ def main():
             create_chart(
                 monthly_data,
                 ERBIL_COLORS,
-                f"Hourly Temperature Trends for {pd.Timestamp(2023, month, 1).strftime('%B')}",
+                f"Hourly Temperatures in {pd.Timestamp(2023, month, 1).strftime('%B')}",
                 x_axis='DateTime:T',
                 x_format='%d'
-            ),
-            use_container_width=True
-        )
+            ), use_container_width=True)
     else:
-        st.warning("No data available for the selected month.")
+        st.warning("No data for selected month")
+
+    # ===== New Chart 3: Extreme Heat Analysis =====
+    st.header("3. Extreme Heat Analysis")
     
-    # NEW CHART 4: Hours Above Threshold
-    st.header("Extreme Heat Hours Analysis")
-    
-    # Add threshold control to sidebar
-    with st.sidebar:
-        st.markdown("---")
-        threshold = st.number_input(
-            "🌡️ Temperature Threshold (°C)",
-            min_value=30,
-            max_value=60,
-            value=40,
-            step=1,
-            help="Analyze hours above this temperature"
-        )
-    
-    # Calculate hours above threshold
+    # Calculate hours
     hours_data = {
         '2023 Baseline': count_hours_above_threshold(load_baseline(), threshold),
         '2050 Projection': count_hours_above_threshold(load_2050(), threshold),
         '2080 Projection': count_hours_above_threshold(load_2080(), threshold)
     }
     
-    # Create bar chart
+    # Create styled chart
     df_hours = pd.DataFrame({
         'Scenario': list(hours_data.keys()),
         'Hours': list(hours_data.values())
     })
     
-    chart = alt.Chart(df_hours).mark_bar().encode(
-        x=alt.X('Scenario:N', title='', sort=list(ERBIL_COLORS.keys())),
-        y=alt.Y('Hours:Q', title='Hours Above Threshold'),
+    heat_intensity = {
+        30: "🌡️ Warm Days",
+        40: "🔥 Hot Days",
+        50: "☠️ Extreme Heat",
+        60: "💀 Danger Zone"
+    }
+    closest_label = min(heat_intensity.keys(), key=lambda x: abs(x-threshold))
+    
+    chart = alt.Chart(df_hours).mark_bar(
+        cornerRadius=8,
+        stroke='#333333',
+        strokeWidth=0.5
+    ).encode(
+        x=alt.X('Scenario:N', title='', 
+               axis=alt.Axis(labelAngle=0, labelFontSize=14)),
+        y=alt.Y('Hours:Q', title='Hours Above Threshold',
+               axis=alt.Axis(grid=False, titleFontSize=14)),
         color=alt.Color('Scenario:N').scale(
             domain=list(ERBIL_COLORS.keys()),
             range=list(ERBIL_COLORS.values())
         ),
-        tooltip=['Scenario', alt.Tooltip('Hours:Q', title='Hours')]
+        tooltip=['Scenario', alt.Tooltip('Hours:Q', title='Hours', format=',')]
     ).properties(
         height=400,
-        title=f"Annual Hours Above {threshold}°C"
+        title={
+            "text": f"{heat_intensity[closest_label]}",
+            "subtitle": f"Annual hours above {threshold}°C"
+        }
+    ).configure_view(
+        strokeWidth=0
+    ).configure_axis(
+        labelFontSize=12,
+        titleFontSize=14
     )
     
     st.altair_chart(chart, use_container_width=True)
