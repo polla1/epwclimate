@@ -165,20 +165,23 @@ def main():
     
     hours_data = get_hours_data(st.session_state.threshold)
     
-    # Create optimized chart
+    # Create optimized chart (FIXED SYNTAX)
     heat_labels = {30: "🌡️ Warm", 40: "🔥 Hot", 50: "☠️ Extreme", 60: "💀 Danger"}
     closest_label = min(heat_labels.keys(), key=lambda x: abs(x - st.session_state.threshold))
     
-    chart = alt.Chart(pd.DataFrame({
-        'Scenario': list(hours_data.keys()),
-        'Hours': list(hours_data.values())
-    }).mark_bar().encode(
+    chart = alt.Chart(
+        pd.DataFrame({
+            'Scenario': list(hours_data.keys()),
+            'Hours': list(hours_data.values())
+        })
+    ).mark_bar().encode(
         x=alt.X('Scenario:N', title=''),
         y=alt.Y('Hours:Q', title='Hours Above Threshold'),
         color=alt.Color('Scenario:N').scale(
             domain=list(ERBIL_COLORS.keys()),
             range=list(ERBIL_COLORS.values())
-        )
+        ),
+        tooltip=['Scenario', alt.Tooltip('Hours:Q', format=',')]
     ).properties(
         height=400,
         title=f"{heat_labels[closest_label]} Heat Hours: Above {st.session_state.threshold}°C"
