@@ -203,6 +203,9 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
+    # Initialize sidebar first
+    display_sidebar()
+    
     st.title("🌡️ Climate Analysis Dashboard")
     
     erbil_data = load_erbil_data()
