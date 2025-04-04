@@ -11,12 +11,12 @@ def display_sidebar():
         }
         .sidebar-title {
             color: #2c3e50;
-            font-size: 20px !important;
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 20px;
         }
         .footer {
-            margin-top: 30px;
+            margin-top: 20px;
             font-size: 0.8em;
             color: #666;
             text-align: center;
