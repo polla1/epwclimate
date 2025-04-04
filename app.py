@@ -163,6 +163,42 @@ def main():
     
     st.altair_chart(chart, use_container_width=True)
     
+# ===== EPW File Analysis =====
+if uploaded_files:
+    with st.expander("📤 Uploaded EPW File Analysis", expanded=True):
+        try:
+            # Process EPW files with explicit column handling
+            epw_dfs = []
+            for i, file in enumerate(uploaded_files):
+                df = read_epw(file)
+                if 'Dry Bulb Temperature' not in df.columns:
+                    st.error("EPW files must contain 'Dry Bulb Temperature' column")
+                    continue
+                
+                # Rename to match chart expectations
+                df = df.rename(columns={'Dry Bulb Temperature': 'Temperature'})
+                df = df[['DateTime', 'Temperature']].rename(columns={'Temperature': f'EPW {i+1}'})
+                epw_dfs.append(df)
+
+            if epw_dfs:
+                custom_data = pd.concat(epw_dfs, axis=1)
+                st.altair_chart(
+                    create_chart(
+                        custom_data.filter(regex='^EPW'),
+                        {'EPW': '#8A2BE2'},  # Purple color
+                        "Custom EPW Temperature Analysis",
+                        x_axis='DateTime:T',
+                        x_format='%B'
+                    ), use_container_width=True
+                )
+                st.write("Uploaded EPW files preview:")
+                st.dataframe(custom_data.head())
+            else:
+                st.warning("No valid EPW files processed")
+
+        except Exception as e:
+            st.error(f"EPW processing failed: {str(e)}")
+            st.write("Please ensure files are valid EPW format")
     # Footer
     display_contact()
     st.markdown("<hr>", unsafe_allow_html=True)
