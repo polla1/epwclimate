@@ -69,7 +69,7 @@ def main():
         st.warning("Please select at least one scenario")
 
     # ===== Chart 2: Monthly Analysis =====
-    st.markdown("### 📅 Monthly Temperature Patterns")
+    st.markdown("### 📅 Monthly Temperature Patterns|Erbil")
     month = st.selectbox(
         "Select Month", 
         range(1, 13), 
@@ -90,7 +90,7 @@ def main():
         st.warning("No data for selected month")
 
     # ===== Chart 3: Extreme Heat Analysis =====
-    st.markdown("### 🔥 Extreme Heat Analysis")
+    st.markdown("### 🔥 Extreme Heat Analysis|Erbil")
     
     # Threshold controls
     with st.container():
