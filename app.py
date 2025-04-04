@@ -211,46 +211,49 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # Updated tab styling only
+    # ONLY THIS CSS BLOCK CHANGES
     st.markdown("""
     <style>
-        div[data-testid="stTabs"] {
-            margin-bottom: 20px;
+        /* TARGET TABS DIRECTLY */
+        div[data-testid="stTabs"] > div > div {
+            gap: 8px !important;
         }
+        
         button[data-testid="baseButton-header"] {
-            font-size: 18px !important;
-            font-weight: 500 !important;
-            padding: 12px 24px !important;
-            margin: 0 4px !important;
-            border-radius: 8px 8px 0 0 !important;
-            transition: all 0.3s ease !important;
-            border-bottom: 3px solid transparent !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            padding: 8px 16px !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 6px 6px 0 0 !important;
+            transition: all 0.2s ease !important;
+            background: #e0e0e0 !important;
         }
+        
         button[data-testid="baseButton-header"][aria-selected="true"] {
-            background: #f0f2f6 !important;
-            color: #2c3e50 !important;
-            border-bottom: 3px solid #4a90e2 !important;
+            background: #ffffff !important;
+            color: #e65100 !important;
+            box-shadow: 0 -3px 0 #e65100 inset !important;
+            font-weight: 700 !important;
         }
-        button[data-testid="baseButton-header"][aria-selected="false"] {
-            background: #dfe6e9 !important;
-            color: #7f8c8d !important;
-            opacity: 0.9;
-        }
+        
         button[data-testid="baseButton-header"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: #e65100 !important;
+            background: #f5f5f5 !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
+    # REST OF YOUR ORIGINAL CODE BELOW (UNCHANGED)
     st.title("🌡️ Climate Analysis Dashboard")
-    
     erbil_data = load_erbil_data()
     
     tab1, tab2 = st.tabs([
         "🌍 Erbil Projections", 
         "📤 Custom EPW Analysis"
     ])
+    
+    # ... rest of your original main() function
     
     with tab1:
         show_erbil_analysis(erbil_data)
