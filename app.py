@@ -211,38 +211,44 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # Custom tab styling
+    # Custom tab styling (updated)
     st.markdown("""
     <style>
-        div[data-testid="stTabs"] {
-            background: #f0f2f6;
-            padding: 8px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
+        /* Target only the tab headers */
         button[data-testid="baseButton-header"] {
-            font-size: 16px !important;
+            font-size: 18px !important;
             font-weight: 500 !important;
             padding: 12px 24px !important;
             margin: 0 4px !important;
-            border-radius: 8px !important;
+            border-radius: 8px 8px 0 0 !important;
             transition: all 0.3s ease !important;
+            border-bottom: 3px solid transparent !important;
         }
+        
+        /* Active tab styling */
         button[data-testid="baseButton-header"][aria-selected="true"] {
-            background: #2c3e50 !important;
-            color: white !important;
-            border: 2px solid #3498db !important;
+            background: #f0f2f6 !important;
+            color: #2c3e50 !important;
+            border-bottom: 3px solid #4a90e2 !important;
+            transform: translateY(-1px);
         }
-        button[data-testid="baseButton-header"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        
+        /* Inactive tab styling */
         button[data-testid="baseButton-header"][aria-selected="false"] {
             background: #dfe6e9 !important;
-            color: #2d3436 !important;
+            color: #7f8c8d !important;
+            opacity: 0.9;
+        }
+        
+        /* Hover effects */
+        button[data-testid="baseButton-header"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
     </style>
     """, unsafe_allow_html=True)
+    
+    # Rest of your existing main() code remains unchanged...
     
     st.title("🌡️ Climate Analysis Dashboard")
     
