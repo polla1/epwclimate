@@ -1,7 +1,7 @@
 import streamlit as st
 
 def display_sidebar():
-    """Clean sidebar with single contact section"""
+    """Clean sidebar with clickable GitHub link"""
     
     # Custom styling
     st.markdown("""
@@ -42,7 +42,7 @@ def display_sidebar():
     **Polla D. I. Sktani**  
     MSc Sustainable Architecture  
     polla.sktani@gmail.com  
-    GitHub: polla1
+    GitHub: [polla1](https://github.com/polla1)
     """)
     
     # Single footer
