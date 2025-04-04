@@ -38,11 +38,7 @@ def display_sidebar():
     st.sidebar.markdown("---")
     st.sidebar.markdown("### Contact Information")
     st.sidebar.markdown("""
-    **Polla D. I. Sktani**  
-    MSc Sustainable Architecture  
-    polla.sktani@gmail.com  
-    GitHub: polla1
-    """)
+
     
     # Footer
     st.sidebar.markdown("---")
