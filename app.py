@@ -209,20 +209,32 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # ====== BIG TAB TITLES ======
+    # ====== WORKING TAB STYLING ======
     st.markdown("""
     <style>
-        button[data-testid="baseButton-header"] {
-            font-size: 18px !important;
-            font-weight: bold !important;
-            padding: 12px 24px !important;
+        /* Target tab container */
+        div[data-testid="stTabs"] > div[role="tablist"] {
+            gap: 8px !important;
         }
-        
-        button[data-testid="baseButton-header"][aria-selected="true"] {
+
+        /* Tab buttons */
+        button[data-testid="baseButton-header"] {
             font-size: 20px !important;
+            font-weight: bold !important;
+            padding: 15px 30px !important;
+            border-radius: 8px !important;
+            background: #f0f0f0 !important;
+        }
+
+        /* Active tab */
+        button[data-testid="baseButton-header"][aria-selected="true"] {
+            background: white !important;
+            border: 2px solid #FF4B4B !important;
+            color: #FF4B4B !important;
         }
     </style>
     """, unsafe_allow_html=True)
+    
 
     st.title("🌡️ Climate Analysis Dashboard")
     
