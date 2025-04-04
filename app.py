@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from database import load_baseline, load_2050, load_2080, read_epw, count_hours_above_threshold
-from sidebar import display_sidebar
 from contact import display_contact
 
 ERBIL_COLORS = {
@@ -209,48 +208,47 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # Enhanced tab styling
+    # Strong visual separation styling
     st.markdown("""
     <style>
         div[data-testid="stTabs"] {
-            background: linear-gradient(145deg, #f8f9fa, #ffffff);
-            padding: 12px;
-            border-radius: 15px;
+            border: 2px solid #2c3e50;
+            border-radius: 12px;
             margin: 20px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         button[data-testid="baseButton-header"] {
             font-size: 18px !important;
             font-weight: 600 !important;
-            padding: 16px 32px !important;
-            margin: 0 6px !important;
-            border-radius: 12px !important;
+            padding: 18px 36px !important;
+            margin: 0 !important;
+            border: 2px solid #2c3e50 !important;
+            border-radius: 8px 8px 0 0 !important;
             transition: all 0.3s ease !important;
-            border: 2px solid transparent !important;
         }
         
         button[data-testid="baseButton-header"][aria-selected="true"] {
-            background: linear-gradient(135deg, #2c3e50, #3498db) !important;
+            background: #2c3e50 !important;
             color: white !important;
-            border-color: #ffffff !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-            transform: scale(1.05);
-        }
-        
-        button[data-testid="baseButton-header"]:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            border-bottom: 2px solid #2c3e50 !important;
         }
         
         button[data-testid="baseButton-header"][aria-selected="false"] {
-            background: #e9ecef !important;
-            color: #495057 !important;
-            border-color: #dee2e6 !important;
+            background: #f8f9fa !important;
+            color: #6c757d !important;
+            border-bottom: 2px solid #dee2e6 !important;
         }
         
         .stTabs > div > div:not(:last-child) {
             border-right: 2px solid #dee2e6;
+        }
+        
+        [data-testid="stVerticalBlock"] {
+            padding: 20px;
+            border: 2px solid #2c3e50;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
         }
     </style>
     """, unsafe_allow_html=True)
