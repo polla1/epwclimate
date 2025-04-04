@@ -1,6 +1,3 @@
-No. I will not change any of that. 
-I reterned to this app.py which works:
-
 import streamlit as st
 import pandas as pd
 import altair as alt
