@@ -164,45 +164,63 @@ def main():
         st.altair_chart(chart, use_container_width=True)
 
     # ===== EPW File Analysis =====
-    if uploaded_files:
-        with st.expander("📤 EPW File Analysis", expanded=True):
-            try:
-                TEMP_COLUMNS = ['dry bulb temperature', 'drybulbtemperature', 'temperature']
-                epw_dfs = []
-                valid_files = 0
+if uploaded_files:
+    with st.expander("📤 EPW File Analysis", expanded=True):
+        try:
+            # List of possible datetime column names
+            DATETIME_COLUMNS = ['datetime', 'date/time', 'timestamp', 'date']
+            TEMP_COLUMNS = ['dry bulb temperature', 'drybulbtemperature', 'temperature']
+            
+            epw_dfs = []
+            valid_files = 0
+            
+            for idx, file in enumerate(uploaded_files):
+                df = read_epw(file)
+                df.columns = df.columns.str.lower()
                 
-                for idx, file in enumerate(uploaded_files):
-                    df = read_epw(file)
-                    df.columns = df.columns.str.lower()
-                    
-                    # Find temperature column
-                    temp_col = next((col for col in TEMP_COLUMNS if col in df.columns), None)
-                    
-                    if temp_col:
-                        epw_df = df[['datetime', temp_col]].copy()
-                        epw_df.columns = ['DateTime', f'EPW {idx+1}']
-                        epw_dfs.append(epw_df)
-                        valid_files += 1
-                    else:
-                        st.error(f"EPW file {file.name} missing temperature column. Needs one of: {TEMP_COLUMNS}")
-                        
-                if valid_files > 0:
-                    combined_epw = pd.concat(epw_dfs, axis=1)
-                    st.altair_chart(
-                        create_chart(
-                            combined_epw.filter(regex='EPW'),
-                            {'EPW': '#8A2BE2'},
-                            "EPW Temperature Analysis",
-                            x_axis='DateTime:T',
-                            x_format='%B'
-                        ), use_container_width=True
-                    )
-                    st.success(f"Processed {valid_files} EPW file(s)")
-                else:
-                    st.warning("No valid EPW files found")
-                    
-            except Exception as e:
-                st.error(f"EPW processing error: {str(e)}")
+                # Find datetime column
+                dt_col = next((col for col in DATETIME_COLUMNS if col in df.columns), None)
+                if not dt_col:
+                    st.error(f"EPW file {file.name} missing datetime column")
+                    continue
+                
+                # Find temperature column
+                temp_col = next((col for col in TEMP_COLUMNS if col in df.columns), None)
+                if not temp_col:
+                    st.error(f"EPW file {file.name} missing temperature column")
+                    continue
+                
+                # Create valid dataframe
+                epw_df = df[[dt_col, temp_col]].copy()
+                epw_df.columns = ['DateTime', f'EPW {idx+1}']
+                
+                # Convert to datetime if needed
+                try:
+                    epw_df['DateTime'] = pd.to_datetime(epw_df['DateTime'])
+                except Exception as dt_error:
+                    st.error(f"DateTime conversion error in {file.name}: {str(dt_error)}")
+                    continue
+                
+                epw_dfs.append(epw_df)
+                valid_files += 1
+                
+            if valid_files > 0:
+                combined_epw = pd.concat(epw_dfs, axis=1)
+                st.altair_chart(
+                    create_chart(
+                        combined_epw.filter(regex='EPW'),
+                        {'EPW': '#8A2BE2'},
+                        "EPW Temperature Analysis",
+                        x_axis='DateTime:T',
+                        x_format='%B'
+                    ), use_container_width=True
+                )
+                st.success(f"Processed {valid_files} EPW file(s)")
+            else:
+                st.warning("No valid EPW files found")
+                
+        except Exception as e:
+            st.error(f"EPW processing error: {str(e)}")
 
     # Footer
     display_contact()
