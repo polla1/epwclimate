@@ -211,49 +211,46 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # ONLY THIS CSS BLOCK CHANGES
+    # ====== TAB STYLING ======
     st.markdown("""
     <style>
-        /* TARGET TABS DIRECTLY */
-        div[data-testid="stTabs"] > div > div {
-            gap: 8px !important;
+        [data-testid="stTabs"] {
+            margin: 1rem 0;
         }
-        
+
         button[data-testid="baseButton-header"] {
             font-size: 14px !important;
-            font-weight: 600 !important;
+            font-weight: 500 !important;
             padding: 8px 16px !important;
-            margin: 0 !important;
+            margin: 0 2px !important;
             border: none !important;
             border-radius: 6px 6px 0 0 !important;
+            background: #f0f2f6 !important;
             transition: all 0.2s ease !important;
-            background: #e0e0e0 !important;
         }
-        
+
         button[data-testid="baseButton-header"][aria-selected="true"] {
-            background: #ffffff !important;
-            color: #e65100 !important;
-            box-shadow: 0 -3px 0 #e65100 inset !important;
+            background: white !important;
+            color: #FF4B4B !important;
+            box-shadow: 0 -3px 0 #FF4B4B inset !important;
             font-weight: 700 !important;
         }
-        
+
         button[data-testid="baseButton-header"]:hover {
-            color: #e65100 !important;
-            background: #f5f5f5 !important;
+            color: #FF4B4B !important;
+            background: #f8f9fa !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # REST OF YOUR ORIGINAL CODE BELOW (UNCHANGED)
     st.title("🌡️ Climate Analysis Dashboard")
+    
     erbil_data = load_erbil_data()
     
     tab1, tab2 = st.tabs([
         "🌍 Erbil Projections", 
         "📤 Custom EPW Analysis"
     ])
-    
-    # ... rest of your original main() function
     
     with tab1:
         show_erbil_analysis(erbil_data)
