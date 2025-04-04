@@ -162,7 +162,31 @@ def main():
     )
     
     st.altair_chart(chart, use_container_width=True)
-    
+
+    # ===== Custom EPW Visualization =====
+    if uploaded_files:
+        with st.expander("📤 Uploaded EPW File Analysis", expanded=True):
+            try:
+                custom_data = pd.concat([read_epw(file) for file in uploaded_files], axis=1)
+                custom_colors = {col: '#8A2BE2' for col in custom_data.columns}  # Purple color
+                
+                st.altair_chart(
+                    create_chart(
+                        custom_data,
+                        custom_colors,
+                        "Custom EPW Temperature Analysis",
+                        x_axis='DateTime:T',
+                        x_format='%B'
+                    ), use_container_width=True
+                )
+                
+                st.write(f"Number of uploaded files: {len(uploaded_files)}")
+                st.write("Custom data preview:")
+                st.dataframe(custom_data.head())
+                
+            except Exception as e:
+                st.error(f"Error processing EPW files: {str(e)}")
+
     # Footer
     display_contact()
     st.markdown("<hr>", unsafe_allow_html=True)
