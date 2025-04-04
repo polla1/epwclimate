@@ -211,40 +211,60 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # Custom tab styling
+    # Enhanced tab styling
     st.markdown("""
     <style>
+        /* Main tab container */
         div[data-testid="stTabs"] {
-            background: #f0f2f6;
-            padding: 8px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
+        
+        /* Individual tab buttons */
         button[data-testid="baseButton-header"] {
-            font-size: 16px !important;
-            font-weight: 500 !important;
-            padding: 12px 24px !important;
-            margin: 0 4px !important;
-            border-radius: 8px !important;
-            transition: all 0.3s ease !important;
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            padding: 15px 30px !important;
+            margin: 0 8px !important;
+            border-radius: 10px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: none !important;
         }
+        
+        /* Active tab styling */
         button[data-testid="baseButton-header"][aria-selected="true"] {
-            background: #2c3e50 !important;
+            background: linear-gradient(135deg, #3498db, #2c3e50) !important;
             color: white !important;
-            border: 2px solid #3498db !important;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+            transform: scale(1.05);
         }
+        
+        /* Hover effects */
         button[data-testid="baseButton-header"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
         }
+        
+        /* Inactive tabs */
         button[data-testid="baseButton-header"][aria-selected="false"] {
-            background: #dfe6e9 !important;
-            color: #2d3436 !important;
+            background: #e9ecef !important;
+            color: #6c757d !important;
+            border: 1px solid #dee2e6 !important;
+        }
+        
+        /* Divider between tabs */
+        .stTabs > div > div:not(:last-child) {
+            border-right: 2px solid #dee2e6;
         }
     </style>
     """, unsafe_allow_html=True)
     
     st.title("🌡️ Climate Analysis Dashboard")
+    
+    # Rest of your main function remains the same...
     
     erbil_data = load_erbil_data()
     
