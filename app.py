@@ -50,7 +50,7 @@ def main():
     uploaded_files = display_sidebar()
     
     # ===== Chart 1: Scenarios =====
-    st.header("1. Climate Scenario Comparison")
+    st.markdown("### 🌍 Climate Scenario Comparison")
     selected_erbil = []
     cols = st.columns(3)
     for i, scenario in enumerate(ERBIL_COLORS):
@@ -69,7 +69,7 @@ def main():
         st.warning("Please select at least one scenario")
 
     # ===== Chart 2: Monthly Analysis =====
-    st.header("2. Monthly Temperature Patterns")
+    st.markdown("### 📅 Monthly Temperature Patterns")
     month = st.selectbox(
         "Select Month", 
         range(1, 13), 
@@ -90,11 +90,11 @@ def main():
         st.warning("No data for selected month")
 
     # ===== Chart 3: Extreme Heat Analysis =====
-    st.header("3. Extreme Heat Analysis")
+    st.markdown("### 🔥 Extreme Heat Analysis")
     
     # Threshold controls
     with st.container():
-        st.subheader("Temperature Threshold Selector")
+        st.markdown("#### 🌡️ Temperature Threshold Selector")
         
         st.markdown("""
         <style>
@@ -109,7 +109,7 @@ def main():
         threshold = st.slider(
             "Select temperature threshold (°C)",
             min_value=30,
-            max_value=58,  # Changed from 60 to 58
+            max_value=58,
             value=40,
             step=1,
             help="Analyze hours above this temperature level",
