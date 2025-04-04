@@ -2,64 +2,65 @@ import streamlit as st
 from datetime import datetime
 
 def display_sidebar():
-    """Enhanced sidebar with better visual design"""
+    """Enhanced sidebar with visual improvements"""
     
-    st.sidebar.markdown("""
+    # Custom CSS injection
+    st.markdown("""
     <style>
-        .sidebar-header {
-            color: #2c3e50;
-            font-size: 24px !important;
-            font-weight: bold;
-            margin-bottom: 15px;
+        [data-testid="stSidebar"] {
+            background: #f8f9fa !important;
+            padding: 20px !important;
         }
         .sidebar-section {
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin: 10px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 15px 0;
+        }
+        .sidebar-header {
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
         }
     </style>
     """, unsafe_allow_html=True)
-
-    # Main Header
-    st.sidebar.markdown('<div class="sidebar-header">🌡️ Climate Analysis Toolkit</div>', unsafe_allow_html=True)
+    
+    # Sidebar Header
+    st.sidebar.markdown('<div class="sidebar-header">🌡️ Climate Toolkit</div>', unsafe_allow_html=True)
     
     # Data Sources Section
-    with st.sidebar.expander("📂 Data Sources", expanded=True):
+    with st.sidebar.container():
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.subheader("📂 Data Sources")
         st.markdown("""
-        - **Erbil Projections**:
+        - **Official Projections**:
           - 2023 Baseline
           - 2050 Scenario
           - 2080 Scenario
         - **Custom Data**:
-          - EPW weather files
+          - EPW Weather Files
         """)
-    
-    # Analysis Features
-    st.sidebar.markdown('---')
-    st.sidebar.markdown('### 🔍 Analysis Tools')
-    st.sidebar.markdown("""
-    - Temperature Trends
-    - Monthly Patterns
-    - Extreme Heat Analysis
-    - Custom Comparisons
-    """)
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Quick Guide
-    with st.sidebar.expander("ℹ️ Quick Guide"):
+    with st.sidebar.container():
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.subheader("ℹ️ User Guide")
         st.markdown("""
         1. Select scenarios using checkboxes
         2. Choose month for detailed view
         3. Adjust temperature threshold
-        4. Upload EPW files for custom analysis
+        4. Upload EPW files
         """)
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    # Version & Author
-    st.sidebar.markdown('---')
+    # Footer
+    st.sidebar.markdown("---")
     st.sidebar.caption(f"""
-    <div style="color: #7f8c8d; font-size: 0.8em">
-        Version: 1.1.0<br>
-        Last update: {datetime.now().strftime('%Y-%m-%d')}<br>
+    <div style="color: #7f8c8d; font-size: 0.8em; margin-top: 20px">
+        Version: 1.1.0 | {datetime.now().strftime('%Y-%m-%d')}<br>
         Developed by Polla Sktani
     </div>
     """, unsafe_allow_html=True)
