@@ -1,7 +1,7 @@
 import streamlit as st
 
 def display_sidebar():
-    """Modern sidebar design with improved visuals"""
+    """Modern sidebar with clean design"""
     
     # Custom styling
     st.markdown("""
@@ -9,38 +9,27 @@ def display_sidebar():
         [data-testid="stSidebar"] {
             background: #f8f9fa;
             padding: 25px !important;
+            border-right: 1px solid #e0e0e0;
         }
         .sidebar-title {
             color: #2c3e50;
-            font-size: 24px;
-            font-weight: 800;
+            font-size: 22px;
+            font-weight: 700;
             margin-bottom: 25px;
-            padding: 10px;
-            background: linear-gradient(45deg, #4B32C3, #4472C4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #4B32C3;
         }
         .guide-item {
             padding: 8px 0;
             font-size: 0.95em;
+            color: #4a4a4a;
         }
-        .contact-box {
-            background: white;
+        .contact-section {
+            margin-top: 25px;
             padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin: 15px 0;
-        }
-        .github-link {
-            color: #2c3e50 !important;
-            font-weight: 500;
-            text-decoration: none;
-            background: #f0f2f6;
-            padding: 5px 10px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-top: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .footer {
             margin-top: 25px;
@@ -55,58 +44,41 @@ def display_sidebar():
 
     # Main Title
     st.sidebar.markdown(
-        '<div class="sidebar-title">📊 EPW Weather File Toolkit</div>', 
+        '<div class="sidebar-title">📈 EPW Climate Toolkit</div>', 
         unsafe_allow_html=True
     )
     
     # User Guide
-    with st.sidebar.expander("📘 User Guide", expanded=True):
-        st.markdown("""
-        <div class="guide-item">
-            🌍 Compare climate projections<br>
-            <small>(2023 Baseline, 2050 & 2080 Scenarios)</small>
-        </div>
-        <div class="guide-item">
-            📅 Analyze monthly trends<br>
-            <small>(Select month from dropdown)</small>
-        </div>
-        <div class="guide-item">
-            🌡️ Find extreme heat hours<br>
-            <small>(Adjust temperature threshold)</small>
-        </div>
-        """, unsafe_allow_html=True)
+    st.sidebar.markdown("#### 🧭 Quick Guide")
+    st.sidebar.markdown("""
+    <div class="guide-item">
+        • Compare climate projections<br>
+        <small>2023 Baseline vs 2050/2080 Scenarios</small>
+    </div>
+    <div class="guide-item">
+        • Analyze monthly patterns<br>
+        <small>Use month selector dropdown</small>
+    </div>
+    <div class="guide-item">
+        • Calculate extreme heat<br>
+        <small>Adjust temperature threshold slider</small>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Contact Information
     st.sidebar.markdown("---")
     with st.sidebar.container():
-        st.markdown('<div class="contact-box">', unsafe_allow_html=True)
-        st.markdown("#### 📬 Contact Information")
-        col1, col2 = st.columns([1, 4])
-        with col1:
-            st.markdown("""
-            <style>
-                .contact-icon {font-size: 20px; margin-right: 10px;}
-            </style>
-            <div class="contact-icon">👤</div>
-            <div class="contact-icon">🎓</div>
-            <div class="contact-icon">📧</div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-            Polla D. I. Sktani  
-            MSc Sustainable Architecture  
-            [polla.sktani@gmail.com](mailto:polla.sktani@gmail.com)  
-            """)
+        st.markdown("#### 📮 Contact")
         st.markdown("""
-        <a href="https://github.com/polla1" class="github-link">
-            <img src="https://img.icons8.com/ios-glyphs/20/2c3e50/github.png" alt="GitHub"/>
-            polla1
-        </a>
-        """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        **Polla D. I. Sktani**  
+        *MSc Sustainable Architecture*  
+        [polla.sktani@gmail.com](mailto:polla.sktani@gmail.com)  
+        [GitHub/polla1](https://github.com/polla1)
+        """)
     
     # Footer
+    st.sidebar.markdown("---")
     st.sidebar.markdown(
-        '<div class="footer">Version 1.2.0<br>Polla Sktani ©2025</div>', 
+        '<div class="footer">Polla Sktani ©2025</div>', 
         unsafe_allow_html=True
     )
