@@ -208,47 +208,48 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # Strong visual separation styling
+    # Modern, subtle separation styling
     st.markdown("""
     <style>
+        /* Main tab container */
         div[data-testid="stTabs"] {
-            border: 2px solid #2c3e50;
-            border-radius: 12px;
-            margin: 20px 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 25px 0;
+            position: relative;
         }
         
+        /* Tab buttons */
         button[data-testid="baseButton-header"] {
-            font-size: 18px !important;
-            font-weight: 600 !important;
-            padding: 18px 36px !important;
-            margin: 0 !important;
-            border: 2px solid #2c3e50 !important;
-            border-radius: 8px 8px 0 0 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            padding: 12px 24px !important;
+            margin: 0 8px !important;
+            border: none !important;
+            border-radius: 8px !important;
             transition: all 0.3s ease !important;
+            background: #f0f2f6 !important;
+            color: #2c3e50 !important;
         }
         
+        /* Active tab */
         button[data-testid="baseButton-header"][aria-selected="true"] {
-            background: #2c3e50 !important;
+            background: linear-gradient(135deg, #3498db, #2c3e50) !important;
             color: white !important;
-            border-bottom: 2px solid #2c3e50 !important;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
         }
         
-        button[data-testid="baseButton-header"][aria-selected="false"] {
-            background: #f8f9fa !important;
-            color: #6c757d !important;
-            border-bottom: 2px solid #dee2e6 !important;
-        }
-        
-        .stTabs > div > div:not(:last-child) {
-            border-right: 2px solid #dee2e6;
-        }
-        
-        [data-testid="stVerticalBlock"] {
+        /* Content separation */
+        .stTabs [data-testid="stVerticalBlock"] {
+            border-left: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            border-radius: 0 0 8px 8px;
             padding: 20px;
-            border: 2px solid #2c3e50;
-            border-top: none;
-            border-radius: 0 0 12px 12px;
+            margin-top: -1px;
+        }
+        
+        /* Divider between tabs */
+        .stTabs > div > div:not(:last-child) {
+            border-right: 1px solid #e0e0e0;
         }
     </style>
     """, unsafe_allow_html=True)
