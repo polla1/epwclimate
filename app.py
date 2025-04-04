@@ -50,7 +50,7 @@ def main():
     uploaded_files = display_sidebar()
     
     # ===== Original Erbil Charts =====
-    # Chart 1: Scenarios
+    # Chart 1: Scenario Comparison
     st.markdown("### 🌍 Climate Scenario Comparison")
     selected_erbil = []
     cols = st.columns(3)
@@ -133,7 +133,6 @@ def main():
         st.markdown(severity_html, unsafe_allow_html=True)
         st.markdown("---")
 
-        # Calculate and display hours
         hours_data = {
             '2023 Baseline': count_hours_above_threshold(load_baseline(), threshold),
             '2050 Projection': count_hours_above_threshold(load_2050(), threshold),
@@ -159,21 +158,19 @@ def main():
         )
         st.altair_chart(chart, use_container_width=True)
 
-    # ===== Custom EPW Analysis =====
+    # ===== EPW Analysis Section =====
     if uploaded_files:
         with st.expander("📤 Custom EPW Analysis", expanded=True):
             try:
                 epw_dfs = []
                 for idx, file in enumerate(uploaded_files):
-                    # Process each EPW file
                     epw_data = read_epw(file)
                     epw_data = epw_data.rename(columns={'Temperature': f'Custom {idx+1}'})
                     epw_dfs.append(epw_data)
                 
-                # Combine all EPW data
                 combined_epw = pd.concat(epw_dfs, axis=1)
                 
-                # Create EPW chart
+                # EPW Visualization
                 st.altair_chart(
                     create_chart(
                         combined_epw,
@@ -184,22 +181,24 @@ def main():
                     ), use_container_width=True
                 )
                 
-                # Show file info
-                st.success(f"Processed {len(uploaded_files)} EPW files:")
+                # File list and data preview
+                st.success(f"Successfully processed {len(uploaded_files)} EPW file(s)")
+                st.write("**Uploaded files:**")
                 for file in uploaded_files:
                     st.write(f"- {file.name}")
                 
-                # Data preview
-                with st.expander("View first 5 rows"):
+                # Data preview with checkbox instead of nested expander
+                if st.checkbox("Show raw EPW data", key="epw_data_preview"):
                     st.dataframe(combined_epw.head())
 
             except Exception as e:
                 st.error(f"EPW Processing Error: {str(e)}")
-                st.write("""
-                **Please ensure your EPW files:**
-                1. Are valid .epw format
-                2. Contain temperature data
-                3. Have proper datetime formatting
+                st.markdown("""
+                **Required EPW Format:**
+                - Valid .epw file structure
+                - Contains temperature data column
+                - Includes datetime information
+                - No nested data structures
                 """)
 
     # Footer
