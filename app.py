@@ -42,10 +42,9 @@ def load_erbil_data():
     ], axis=1)
 
 def show_erbil_analysis(erbil_data):
-    """Erbil Projections Analysis"""
     st.header("Erbil Climate Projections")
     
-    # Chart 1: Scenarios
+    # Climate Scenario Comparison
     st.markdown("### 🌍 Climate Scenario Comparison")
     selected_erbil = []
     cols = st.columns(3)
@@ -64,7 +63,7 @@ def show_erbil_analysis(erbil_data):
     else:
         st.warning("Please select at least one scenario")
 
-    # Chart 2: Monthly Analysis
+    # Monthly Analysis
     st.markdown("### 📅 Monthly Temperature Patterns")
     month = st.selectbox(
         "Select Month", 
@@ -85,7 +84,7 @@ def show_erbil_analysis(erbil_data):
     else:
         st.warning("No data for selected month")
 
-    # Chart 3: Extreme Heat Analysis
+    # Extreme Heat Analysis
     st.markdown("### 🔥 Extreme Heat Analysis")
     with st.container():
         st.markdown("#### 🌡️ Temperature Threshold Selector")
@@ -154,7 +153,6 @@ def show_erbil_analysis(erbil_data):
         st.altair_chart(chart, use_container_width=True)
 
 def show_epw_analysis():
-    """Custom EPW Analysis"""
     st.header("Custom EPW Analysis")
     
     with st.container():
@@ -211,38 +209,42 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # ====== TAB STYLING ======
+    # Custom tab styling
     st.markdown("""
     <style>
-        [data-testid="stTabs"] {
-            margin: 1rem 0;
+        div[data-testid="stTabs"] > div[role="tablist"] {
+            gap: 8px !important;
+            padding: 4px !important;
+            background: #f0f2f6 !important;
+            border-radius: 8px !important;
+            margin-bottom: 1rem;
         }
 
         button[data-testid="baseButton-header"] {
             font-size: 14px !important;
             font-weight: 500 !important;
             padding: 8px 16px !important;
-            margin: 0 2px !important;
             border: none !important;
-            border-radius: 6px 6px 0 0 !important;
-            background: #f0f2f6 !important;
+            border-radius: 6px !important;
+            background: transparent !important;
             transition: all 0.2s ease !important;
+            color: #666666 !important;
         }
 
         button[data-testid="baseButton-header"][aria-selected="true"] {
             background: white !important;
+            box-shadow: 0 0 0 2px #FF4B4B !important;
             color: #FF4B4B !important;
-            box-shadow: 0 -3px 0 #FF4B4B inset !important;
             font-weight: 700 !important;
         }
 
         button[data-testid="baseButton-header"]:hover {
             color: #FF4B4B !important;
-            background: #f8f9fa !important;
+            background: rgba(255,75,75,0.1) !important;
         }
     </style>
     """, unsafe_allow_html=True)
-    
+
     st.title("🌡️ Climate Analysis Dashboard")
     
     erbil_data = load_erbil_data()
