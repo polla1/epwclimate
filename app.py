@@ -41,16 +41,11 @@ def load_erbil_data():
         load_2080().rename(columns={'Temperature': '2080 Projection'})
     ], axis=1)
 
-def main():
-    st.set_page_config(page_title="Climate Analysis", layout="wide")
-    st.title("🌡️ Erbil Climate Projections")
+def show_erbil_analysis(erbil_data):
+    """Content for Erbil projections tab"""
+    st.header("Erbil Climate Projections")
     
-    # Load data
-    erbil_data = load_erbil_data()
-    uploaded_files = display_sidebar()
-    
-    # ===== Original Erbil Charts =====
-    # Chart 1: Scenario Comparison
+    # Chart 1: Scenarios
     st.markdown("### 🌍 Climate Scenario Comparison")
     selected_erbil = []
     cols = st.columns(3)
@@ -158,49 +153,69 @@ def main():
         )
         st.altair_chart(chart, use_container_width=True)
 
-    # ===== EPW Analysis Section =====
-    if uploaded_files:
-        with st.expander("📤 Custom EPW Analysis", expanded=True):
-            try:
-                epw_dfs = []
-                for idx, file in enumerate(uploaded_files):
-                    epw_data = read_epw(file)
-                    epw_data = epw_data.rename(columns={'Temperature': f'Custom {idx+1}'})
-                    epw_dfs.append(epw_data)
-                
-                combined_epw = pd.concat(epw_dfs, axis=1)
-                
-                # EPW Visualization
-                st.altair_chart(
-                    create_chart(
-                        combined_epw,
-                        {col: '#8A2BE2' for col in combined_epw.columns},
-                        "Custom EPW Temperature Analysis",
-                        x_axis='DateTime:T',
-                        x_format='%B'
-                    ), use_container_width=True
-                )
-                
-                # File list and data preview
-                st.success(f"Successfully processed {len(uploaded_files)} EPW file(s)")
-                st.write("**Uploaded files:**")
-                for file in uploaded_files:
-                    st.write(f"- {file.name}")
-                
-                # Data preview with checkbox instead of nested expander
-                if st.checkbox("Show raw EPW data", key="epw_data_preview"):
-                    st.dataframe(combined_epw.head())
+def show_epw_analysis(uploaded_files):
+    """Content for custom EPW analysis tab"""
+    st.header("Custom EPW Analysis")
+    
+    if not uploaded_files:
+        st.info("Please upload EPW files using the sidebar")
+        return
+    
+    try:
+        epw_dfs = []
+        for idx, file in enumerate(uploaded_files):
+            epw_data = read_epw(file)
+            epw_data = epw_data.rename(columns={'Temperature': f'Custom {idx+1}'})
+            epw_dfs.append(epw_data)
+        
+        combined_epw = pd.concat(epw_dfs, axis=1)
+        
+        # Visualization
+        st.altair_chart(
+            create_chart(
+                combined_epw,
+                {col: '#8A2BE2' for col in combined_epw.columns},
+                "EPW Temperature Analysis",
+                x_axis='DateTime:T',
+                x_format='%B'
+            ), use_container_width=True
+        )
+        
+        # File list
+        st.success(f"Processed {len(uploaded_files)} files:")
+        for file in uploaded_files:
+            st.write(f"- {file.name}")
+        
+        # Data preview
+        if st.checkbox("Show raw data preview", key="epw_preview"):
+            st.dataframe(combined_epw.head())
 
-            except Exception as e:
-                st.error(f"EPW Processing Error: {str(e)}")
-                st.markdown("""
-                **Required EPW Format:**
-                - Valid .epw file structure
-                - Contains temperature data column
-                - Includes datetime information
-                - No nested data structures
-                """)
+    except Exception as e:
+        st.error(f"EPW Processing Error: {str(e)}")
+        st.markdown("""
+        **Required Format:**
+        - Valid EPW file structure
+        - Contains temperature data
+        - Proper datetime formatting
+        """)
 
+def main():
+    st.set_page_config(page_title="Climate Analysis", layout="wide")
+    st.title("🌡️ Climate Analysis Dashboard")
+    
+    # Load data
+    erbil_data = load_erbil_data()
+    uploaded_files = display_sidebar()
+    
+    # Create tabs
+    tab1, tab2 = st.tabs(["Erbil Projections", "Custom EPW Analysis"])
+    
+    with tab1:
+        show_erbil_analysis(erbil_data)
+    
+    with tab2:
+        show_epw_analysis(uploaded_files)
+    
     # Footer
     display_contact()
     st.markdown("<hr>", unsafe_allow_html=True)
