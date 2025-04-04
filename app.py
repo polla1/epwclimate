@@ -168,10 +168,7 @@ def show_epw_analysis():
             st.success(f"{len(uploaded_files)} file(s) selected:")
             for file in uploaded_files:
                 st.write(f"- {file.name}")
-            
-            if st.button("Clear Files", key="epw_clear"):
-                st.experimental_rerun()
-    
+
     if uploaded_files:
         try:
             epw_dfs = []
@@ -191,9 +188,6 @@ def show_epw_analysis():
                     x_format='%B'
                 ), use_container_width=True
             )
-            
-            if st.checkbox("Show raw data preview", key="epw_preview"):
-                st.dataframe(combined_epw.head())
 
         except Exception as e:
             st.error(f"EPW Processing Error: {str(e)}")
@@ -209,33 +203,6 @@ def show_epw_analysis():
 def main():
     st.set_page_config(page_title="Climate Analysis", layout="wide")
     
-    # ====== WORKING TAB STYLING ======
-    st.markdown("""
-    <style>
-        /* Target tab container */
-        div[data-testid="stTabs"] > div[role="tablist"] {
-            gap: 8px !important;
-        }
-
-        /* Tab buttons */
-        button[data-testid="baseButton-header"] {
-            font-size: 20px !important;
-            font-weight: bold !important;
-            padding: 15px 30px !important;
-            border-radius: 8px !important;
-            background: #f0f0f0 !important;
-        }
-
-        /* Active tab */
-        button[data-testid="baseButton-header"][aria-selected="true"] {
-            background: white !important;
-            border: 2px solid #FF4B4B !important;
-            color: #FF4B4B !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-    
-
     st.title("🌡️ Climate Analysis Dashboard")
     
     erbil_data = load_erbil_data()
