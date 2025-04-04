@@ -206,12 +206,12 @@ def main():
     # Initialize sidebar first
     display_sidebar()
     
-    st.title("🌡️ Climate Analysis Dashboard")
+    st.title("🌡️ EPW Weather File Dashboard")
     
     erbil_data = load_erbil_data()
     
     tab1, tab2 = st.tabs([
-        "🌍 Erbil Projections", 
+        "🏙️ Erbil Projections", 
         "📤 Custom EPW Analysis"
     ])
     
