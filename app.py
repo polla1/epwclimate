@@ -221,7 +221,6 @@ def main():
     with tab2:
         show_epw_analysis()
     
-    display_contact()
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown("<center> Polla Sktani ©2025 </center>", unsafe_allow_html=True)
 
