@@ -43,18 +43,60 @@ def display_sidebar():
     )
     
     # User Guide
-    st.sidebar.markdown("#### 🧭 Quick Guide")
-    st.sidebar.markdown("""
-    <div class="guide-item">
-        • Compare 2023/2050/2080 projections
+    # In display_sidebar() function:
+st.sidebar.markdown("### 🧭 Quick Guide")
+st.sidebar.markdown("""
+<style>
+    .guide-card {
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .guide-card:hover {
+        transform: translateX(5px);
+    }
+    .guide-icon {
+        font-size: 20px;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    .guide-bullet {
+        color: #4B32C3;
+        font-weight: bold;
+        margin-right: 8px;
+    }
+</style>
+
+<div class="guide-card">
+    <span class="guide-icon">🌍</span>
+    <span class="guide-bullet">•</span>
+    Compare climate projections
+    <div style="margin-left: 38px; font-size: 0.9em; color: #666">
+    2023 Baseline vs 2050/2080 Scenarios
     </div>
-    <div class="guide-item">
-        • Analyze monthly patterns
+</div>
+
+<div class="guide-card">
+    <span class="guide-icon">📅</span>
+    <span class="guide-bullet">•</span>
+    Analyze monthly patterns
+    <div style="margin-left: 38px; font-size: 0.9em; color: #666">
+    Detailed temperature trends by month
     </div>
-    <div class="guide-item">
-        • Calculate extreme heat hours
+</div>
+
+<div class="guide-card">
+    <span class="guide-icon">🌡️</span>
+    <span class="guide-bullet">•</span>
+    Calculate extreme heat
+    <div style="margin-left: 38px; font-size: 0.9em; color: #666">
+    Hours above custom temperature thresholds
     </div>
-    """, unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
     
     # Contact Information
     st.sidebar.markdown("---")
