@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import altair as alt
@@ -50,7 +49,8 @@ def main():
     erbil_data = load_erbil_data()
     uploaded_files = display_sidebar()
     
-    # ===== Chart 1: Scenarios =====
+    # ===== Original Erbil Charts =====
+    # Chart 1: Scenarios
     st.markdown("### 🌍 Climate Scenario Comparison")
     selected_erbil = []
     cols = st.columns(3)
@@ -69,7 +69,7 @@ def main():
     else:
         st.warning("Please select at least one scenario")
 
-    # ===== Chart 2: Monthly Analysis =====
+    # Chart 2: Monthly Analysis
     st.markdown("### 📅 Monthly Temperature Patterns")
     month = st.selectbox(
         "Select Month", 
@@ -90,13 +90,10 @@ def main():
     else:
         st.warning("No data for selected month")
 
-    # ===== Chart 3: Extreme Heat Analysis =====
+    # Chart 3: Extreme Heat Analysis
     st.markdown("### 🔥 Extreme Heat Analysis")
-    
-    # Threshold controls
     with st.container():
         st.markdown("#### 🌡️ Temperature Threshold Selector")
-        
         st.markdown("""
         <style>
             div[data-baseweb="slider"] > div { 
@@ -136,34 +133,75 @@ def main():
         st.markdown(severity_html, unsafe_allow_html=True)
         st.markdown("---")
 
-    # Calculate and display hours
-    hours_data = {
-        '2023 Baseline': count_hours_above_threshold(load_baseline(), threshold),
-        '2050 Projection': count_hours_above_threshold(load_2050(), threshold),
-        '2080 Projection': count_hours_above_threshold(load_2080(), threshold)
-    }
-    
-    # Create chart
-    chart = alt.Chart(
-        pd.DataFrame({
-            'Scenario': list(hours_data.keys()),
-            'Hours': list(hours_data.values())
-        })
-    ).mark_bar().encode(
-        x=alt.X('Scenario:N', title='', axis=alt.Axis(labelAngle=0)),
-        y=alt.Y('Hours:Q', title='Hours Above Threshold'),
-        color=alt.Color('Scenario:N').scale(
-            domain=list(ERBIL_COLORS.keys()),
-            range=list(ERBIL_COLORS.values())
-        ),
-        tooltip=['Scenario', alt.Tooltip('Hours:Q', format=',')]
-    ).properties(
-        height=400,
-        title=f"Heat Hours Above {threshold}°C"
-    )
-    
-    st.altair_chart(chart, use_container_width=True)
-    
+        # Calculate and display hours
+        hours_data = {
+            '2023 Baseline': count_hours_above_threshold(load_baseline(), threshold),
+            '2050 Projection': count_hours_above_threshold(load_2050(), threshold),
+            '2080 Projection': count_hours_above_threshold(load_2080(), threshold)
+        }
+        
+        chart = alt.Chart(
+            pd.DataFrame({
+                'Scenario': list(hours_data.keys()),
+                'Hours': list(hours_data.values())
+            })
+        ).mark_bar().encode(
+            x=alt.X('Scenario:N', title='', axis=alt.Axis(labelAngle=0)),
+            y=alt.Y('Hours:Q', title='Hours Above Threshold'),
+            color=alt.Color('Scenario:N').scale(
+                domain=list(ERBIL_COLORS.keys()),
+                range=list(ERBIL_COLORS.values())
+            ),
+            tooltip=['Scenario', alt.Tooltip('Hours:Q', format=',')]
+        ).properties(
+            height=400,
+            title=f"Heat Hours Above {threshold}°C"
+        )
+        st.altair_chart(chart, use_container_width=True)
+
+    # ===== Custom EPW Analysis =====
+    if uploaded_files:
+        with st.expander("📤 Custom EPW Analysis", expanded=True):
+            try:
+                epw_dfs = []
+                for idx, file in enumerate(uploaded_files):
+                    # Process each EPW file
+                    epw_data = read_epw(file)
+                    epw_data = epw_data.rename(columns={'Temperature': f'Custom {idx+1}'})
+                    epw_dfs.append(epw_data)
+                
+                # Combine all EPW data
+                combined_epw = pd.concat(epw_dfs, axis=1)
+                
+                # Create EPW chart
+                st.altair_chart(
+                    create_chart(
+                        combined_epw,
+                        {col: '#8A2BE2' for col in combined_epw.columns},
+                        "Custom EPW Temperature Analysis",
+                        x_axis='DateTime:T',
+                        x_format='%B'
+                    ), use_container_width=True
+                )
+                
+                # Show file info
+                st.success(f"Processed {len(uploaded_files)} EPW files:")
+                for file in uploaded_files:
+                    st.write(f"- {file.name}")
+                
+                # Data preview
+                with st.expander("View first 5 rows"):
+                    st.dataframe(combined_epw.head())
+
+            except Exception as e:
+                st.error(f"EPW Processing Error: {str(e)}")
+                st.write("""
+                **Please ensure your EPW files:**
+                1. Are valid .epw format
+                2. Contain temperature data
+                3. Have proper datetime formatting
+                """)
+
     # Footer
     display_contact()
     st.markdown("<hr>", unsafe_allow_html=True)
