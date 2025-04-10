@@ -1,2 +1,2 @@
 # epwclimate
-.epw weather files (Now as 2023, 2050, 2080) for Erbil, Iraq.
+Analysis and processing of EPW weather files for both current and future weather files (now as 2023, 2050, 2080) for Erbil city through climate scenario comparision, monthly temperature patterns, and extreme heat analysis. The app also enables uploading custom EPW file for any other city around the world in order to process hourly temperature data in an easy and engaging visualazations.  
